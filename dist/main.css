@@ -1,11 +1,18 @@
 body {
 	margin: 0;
-	background-color: #000;
-	color: #fff;
+	background-color: none;
+	color: #000;
 	font-family: Monospace;
 	font-size: 13px;
 	line-height: 24px;
 	overscroll-behavior: none;
+}
+
+#container{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
 }
 
 a {
@@ -24,11 +31,11 @@ button {
 
 canvas {
 	display: block;
+	margin: 0;
 }
 
 #info {
-	position: absolute;
-	top: 0px;
+	top: 10px;
 	width: 100%;
 	padding: 10px;
 	box-sizing: border-box;
@@ -38,6 +45,7 @@ canvas {
 	-ms-user-select: none;
 	user-select: none;
 	pointer-events: none;
+	display: inline-block;
 	z-index: 1; /* TODO Solve this in HTML */
 }
 

@@ -12,16 +12,21 @@ var camera: THREE.PerspectiveCamera,
     model: THREE.Group,
     orbitControls: OrbitControls;
 
+var container = document.getElementById("container");
+var width = 800;
+var height = 400;
+
 function init() {
 
     // renderer
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({alpha: true});
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+    renderer.setSize(width, height);
+    renderer.setClearColor( 0xffffff, 0);
+    container?.appendChild(renderer.domElement);
 
     // camera
-    camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 3000);
+    camera = new THREE.PerspectiveCamera(50, width / height, 1, 3000);
     camera.position.set(15, 5, 10);
     camera.lookAt(0, 200, 0);
 
@@ -29,12 +34,8 @@ function init() {
     scene = new THREE.Scene();
     scene.add(new THREE.GridHelper(100, 20));
 
-    // lights
-    var light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(1, 1, 1);
-    scene.add(light);
-
-    var ambientLight = new THREE.AmbientLight(0xcccccc, 0.6);
+    // light
+    var ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
 
     // orbit controls
@@ -45,7 +46,6 @@ function init() {
     //transform controls 
     transformControls = new TransformControls(camera, renderer.domElement);
     transformControls.addEventListener('change', render);
-
     transformControls.addEventListener('dragging-changed', function (event) {
         orbitControls.enabled = !event.value;
     });
@@ -66,24 +66,15 @@ function init() {
 
     window.addEventListener('resize', onWindowResize, false);
     window.addEventListener('keydown', function (event) {
-
         switch (event.keyCode) {
             case 81: // Q
                 transformControls.setSpace(transformControls.space === "local" ? "world" : "local");
-                break;
-            case 16: // Shift
-                transformControls.setTranslationSnap(100);
-                transformControls.setRotationSnap(THREE.MathUtils.degToRad(15));
-                // transformControls.setScaleSnap(0.25);
                 break;
             case 87: // W
                 transformControls.setMode("translate");
                 break;
             case 69: // E
                 transformControls.setMode("rotate");
-                break;
-            case 82: // R
-                transformControls.setMode("scale");
                 break;
             case 187:
             case 107: // +, =, num+
@@ -119,10 +110,10 @@ function init() {
 }
 
 function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    render();
+    // camera.aspect = window.innerWidth / window.innerHeight;
+    // camera.updateProjectionMatrix();
+    // renderer.setSize(window.innerWidth, window.innerHeight);
+    // render();
 }
 
 function onModelLoaded(object: THREE.Group) {
@@ -130,7 +121,6 @@ function onModelLoaded(object: THREE.Group) {
     scene.add(model);
     transformControls.attach(model);
     scene.add(transformControls);
-
     render();
 }
 
