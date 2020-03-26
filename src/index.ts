@@ -1,8 +1,9 @@
 import * as _ from 'lodash';
 import * as THREE from 'three';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
-import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 
 var camera: THREE.PerspectiveCamera,
     scene: THREE.Scene,
@@ -21,7 +22,7 @@ function init() {
 
     // camera
     camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 3000);
-    camera.position.set(10, 5, 10);
+    camera.position.set(15, 5, 10);
     camera.lookAt(0, 200, 0);
 
     // scene
@@ -50,14 +51,18 @@ function init() {
     });
 
     // model load
-    var loader = new OBJLoader();
-
-    loader.load(
-        'models/PiletaSketchup.obj',
-        (object) => onModelLoaded(object),
-        (xhr) => console.log((xhr.loaded / xhr.total * 100) + '% loaded'),
-        (error) => console.log(error)
-    );
+    new MTLLoader()
+        .setPath('models/')
+        .load('PiletaSketchup.mtl', function (materials) {
+            materials.preload();
+            new OBJLoader()
+                .setMaterials(materials)
+                .setPath('models/')
+                .load('PiletaSketchup.obj',
+                    (object) => onModelLoaded(object),
+                    (xhr) => console.log((xhr.loaded / xhr.total * 100) + '% loaded'),
+                    (error) => console.log(error));
+        });
 
     window.addEventListener('resize', onWindowResize, false);
     window.addEventListener('keydown', function (event) {
@@ -111,7 +116,6 @@ function init() {
                 break;
         }
     });
-
 }
 
 function onWindowResize() {
@@ -121,7 +125,7 @@ function onWindowResize() {
     render();
 }
 
-function onModelLoaded(object:THREE.Group){
+function onModelLoaded(object: THREE.Group) {
     model = object;
     scene.add(model);
     transformControls.attach(model);
