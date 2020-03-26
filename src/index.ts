@@ -12,27 +12,33 @@ var camera: THREE.PerspectiveCamera,
     model: THREE.Group,
     orbitControls: OrbitControls;
 
-var container = document.getElementById("container");
-var width = 800;
-var height = 400;
+var width: number = 800,
+    height: number = 400;
+
+var cameraX: number = 0, //
+    cameraY: number = 2, // cuan alta estaba la cámara de unity al tomar el screenshot (en unidades de unity - metros)
+    cameraZ: number = 25; //
+
+var container = document.getElementById("three");
 
 function init() {
 
     // renderer
-    renderer = new THREE.WebGLRenderer({alpha: true});
+    renderer = new THREE.WebGLRenderer({alpha: true, powerPreference: 'high-performance'},);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(width, height);
     renderer.setClearColor( 0xffffff, 0);
+    renderer.gammaFactor = 2.2;
     container?.appendChild(renderer.domElement);
 
     // camera
     camera = new THREE.PerspectiveCamera(50, width / height, 1, 3000);
-    camera.position.set(15, 5, 10);
+    camera.position.set(cameraX, cameraY, cameraZ);
     camera.lookAt(0, 200, 0);
 
     // scene
     scene = new THREE.Scene();
-    scene.add(new THREE.GridHelper(100, 20));
+    scene.add(new THREE.GridHelper(100, 100));
 
     // light
     var ambientLight = new THREE.AmbientLight(0xffffff, 1);
@@ -67,9 +73,6 @@ function init() {
     window.addEventListener('resize', onWindowResize, false);
     window.addEventListener('keydown', function (event) {
         switch (event.keyCode) {
-            case 81: // Q
-                transformControls.setSpace(transformControls.space === "local" ? "world" : "local");
-                break;
             case 87: // W
                 transformControls.setMode("translate");
                 break;

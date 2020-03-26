@@ -12,7 +12,16 @@ body {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	overflow: hidden;
+}
+
+#three{
+	background-image: url('img/backyard.jpg');
+	background-repeat: no-repeat;
+	background-clip: border-box;
+	background-size: auto;
+	background-size: cover;
+	width: 800;
+	height: 400;
 }
 
 a {
