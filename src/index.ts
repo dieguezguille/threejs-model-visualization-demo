@@ -4,59 +4,96 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
+import { Vector3 } from 'three';
 
-var camera: THREE.PerspectiveCamera,
+let camera: THREE.PerspectiveCamera,
     scene: THREE.Scene,
     renderer: THREE.WebGLRenderer,
     transformControls: TransformControls,
     model: THREE.Group,
     orbitControls: OrbitControls;
 
-var width: number = 800,
-    height: number = 400;
+let cameraX: number = 0, // rotación de la cámara
+    cameraY: number = 1.7, // altura de la cámara (altura de una persona aprox)
+    cameraZ: number = 8; // lejania de la cámara
 
-var cameraX: number = 0, // cuan 
-    cameraY: number = 0, // cuan alta estaba la cámara de unity al tomar el screenshot (en unidades de unity - metros)
-    cameraZ: number = 10; // cuan alejada está la cámara del origen (en Unity el valor está invertido)
+let width: number,
+    height: number;
 
-var container = document.getElementById("three");
+let container: HTMLElement;
+
+var node = document.getElementById("three");
+
+if (node){
+    container = node;
+    console.log("Container div 'three' loaded succesfully");
+
+    console.log("Container div width is 0 = " + (container.offsetWidth == 0));
+    // width = container.offsetWidth;
+    // height = container.offsetHeight;
+
+    width = 800;
+    height = 400;
+}
+else{
+    console.log('No container detected. Configuring default values.');
+    width = 800;
+    height = 600;
+}
+
+var terrainAngle = document.getElementById("terrainAngle");
+var terrainSkew = document.getElementById("terrainSkew");
+
+if(terrainAngle && terrainSkew){
+    terrainAngle.addEventListener("change", onTerrainAngleChanged);
+    terrainSkew.addEventListener("change", onTerrainSkewChanged)
+}
+
+init();
+render();
 
 function init() {
 
     // renderer
-    renderer = new THREE.WebGLRenderer({alpha: true, powerPreference: 'high-performance'},);
+    renderer = new THREE.WebGLRenderer({ alpha: true, powerPreference: 'high-performance', antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(width, height);
-    renderer.setClearColor( 0xffffff, 0);
+    renderer.setClearColor(0xffffff, 0);
     renderer.gammaFactor = 2.2;
-    container?.appendChild(renderer.domElement);
+    container.appendChild(renderer.domElement);
 
     // camera
-    camera = new THREE.PerspectiveCamera(50, width / height, 1, 3000);
+    camera = new THREE.PerspectiveCamera(70, (width / height), 1, 3000);
     camera.position.set(cameraX, cameraY, cameraZ);
-    camera.lookAt(0, 200, 0);
+    camera.lookAt(0, 0, 0);
 
     // scene
     scene = new THREE.Scene();
-    scene.add(new THREE.GridHelper(100, 100));
+    scene.add(new THREE.GridHelper(30, 10));
+    scene.translateY(-1.7);
+    scene.rotateX(0);
+
+    // background
+    let texture = new THREE.TextureLoader().load("textures/backyard.jpg");
+    scene.background = texture;
 
     // light
-    var ambientLight = new THREE.AmbientLight(0xffffff, 1);
+    let ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
 
     // orbit controls
     orbitControls = new OrbitControls(camera, renderer.domElement);
-    orbitControls.update();
-    orbitControls.addEventListener('change', render);
+    orbitControls.enabled = false;
+    // orbitControls.update();
+    // orbitControls.addEventListener('change', render);
 
     //transform controls 
     transformControls = new TransformControls(camera, renderer.domElement);
     transformControls.setMode("translate");
     transformControls.showY = false;
+    transformControls.size = 2;
     transformControls.addEventListener('change', render);
-    transformControls.addEventListener('dragging-changed', function (event) {
-        orbitControls.enabled = !event.value;
-    });
+
 
     // model load
     new MTLLoader()
@@ -68,7 +105,7 @@ function init() {
                 .setPath('models/')
                 .load('PiletaSketchup.obj',
                     (object) => onModelLoaded(object),
-                    (xhr) => console.log((xhr.loaded / xhr.total * 100) + '% loaded'),
+                    (xhr) => console.log('Model is ' + (xhr.loaded / xhr.total * 100) + '% loaded'),
                     (error) => console.log(error));
         });
 
@@ -88,11 +125,11 @@ function init() {
                 transformControls.showZ = false;
                 break;
             case 187:
-            case 107: // +, =, num+
+            case 107: // +
                 transformControls.setSize(transformControls.size + 0.1);
                 break;
             case 189:
-            case 109: // -, _, num-
+            case 109: // -
                 transformControls.setSize(Math.max(transformControls.size - 0.1, 0.1));
                 break;
             case 32: // Spacebar
@@ -100,19 +137,12 @@ function init() {
                 break;
         }
     });
-    window.addEventListener('keyup', function (event) {
-        switch (event.keyCode) {
-            case 17: // Ctrl
-                transformControls.setTranslationSnap(null);
-                transformControls.setRotationSnap(null);
-                // transformControls.setScaleSnap(null);
-                break;
-        }
-    });
 }
 
 function onWindowResize() {
-    camera.aspect = width / height;
+    width = container.offsetWidth; // new Width
+    height = container.offsetHeight; // new Height
+    camera.aspect = (width / height);
     camera.updateProjectionMatrix();
     renderer.setSize(width, height);
     render();
@@ -120,15 +150,27 @@ function onWindowResize() {
 
 function onModelLoaded(object: THREE.Group) {
     model = object;
+    // model.scale.copy(new THREE.Vector3(1, 1, 1)); // model scaling
+    model.position.copy(new Vector3(model.position.x, model.position.y - 1.3, model.position.z)); // acomodo el modelo al nivel del suelo
     scene.add(model);
     transformControls.attach(model);
     scene.add(transformControls);
     render();
 }
 
-function render() {
-    renderer.render(scene, camera);
+function onTerrainAngleChanged(event: any){
+    var newHeight = event.target.value;
+    scene.setRotationFromAxisAngle(new Vector3(1,0,0), newHeight / 100);
+    render();
 }
 
-init();
-render();
+function onTerrainSkewChanged(event: any){
+    var newHeight = event.target.value;
+    scene.setRotationFromAxisAngle(new Vector3(0,0,1), newHeight / 100);
+    render();
+}
+
+function render() {
+    transformControls.attach(model);
+    renderer.render(scene, camera);
+}

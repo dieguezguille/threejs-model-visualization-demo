@@ -11,11 +11,14 @@
 <body>
 	<div id="info">
 		"W" translate | "E" rotate | "+" increase size | "-" decrease size<br />
-		"X" toggle X | "Y" toggle Y | "Z" toggle Z  <br />
 		"Spacebar" toggle enabled
 	</div>
 	<div id="container">
 		<div id="three"></div>
+	</div>
+	<div id="controls">
+		<input type="number" id="terrainAngle" placeholder="Terrain angle" value="0">
+		<input type="number" id="terrainSkew" placeholder="Terrain skew" value="0">
 	</div>
 	<script src="bundle.js"></script>
 </body>
