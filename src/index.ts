@@ -15,9 +15,9 @@ var camera: THREE.PerspectiveCamera,
 var width: number = 800,
     height: number = 400;
 
-var cameraX: number = 0, //
-    cameraY: number = 2, // cuan alta estaba la cámara de unity al tomar el screenshot (en unidades de unity - metros)
-    cameraZ: number = 25; //
+var cameraX: number = 0, // cuan 
+    cameraY: number = 0, // cuan alta estaba la cámara de unity al tomar el screenshot (en unidades de unity - metros)
+    cameraZ: number = 10; // cuan alejada está la cámara del origen (en Unity el valor está invertido)
 
 var container = document.getElementById("three");
 
@@ -51,8 +51,8 @@ function init() {
 
     //transform controls 
     transformControls = new TransformControls(camera, renderer.domElement);
-    transformControls.showY = false;
     transformControls.setMode("translate");
+    transformControls.showY = false;
     transformControls.addEventListener('change', render);
     transformControls.addEventListener('dragging-changed', function (event) {
         orbitControls.enabled = !event.value;
@@ -75,6 +75,18 @@ function init() {
     window.addEventListener('resize', onWindowResize, false);
     window.addEventListener('keydown', function (event) {
         switch (event.keyCode) {
+            case 87: // W
+                transformControls.setMode("translate");
+                transformControls.showY = false;
+                transformControls.showX = true;
+                transformControls.showZ = true;
+                break;
+            case 69: // E
+                transformControls.setMode("rotate");
+                transformControls.showY = true;
+                transformControls.showX = false;
+                transformControls.showZ = false;
+                break;
             case 187:
             case 107: // +, =, num+
                 transformControls.setSize(transformControls.size + 0.1);
@@ -100,10 +112,10 @@ function init() {
 }
 
 function onWindowResize() {
-    // camera.aspect = window.innerWidth / window.innerHeight;
-    // camera.updateProjectionMatrix();
-    // renderer.setSize(window.innerWidth, window.innerHeight);
-    // render();
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height);
+    render();
 }
 
 function onModelLoaded(object: THREE.Group) {
