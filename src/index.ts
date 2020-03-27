@@ -5,7 +5,6 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { Vector3 } from 'three';
-import { update } from 'lodash';
 
 let camera: THREE.PerspectiveCamera,
     scene: THREE.Scene,
@@ -16,7 +15,7 @@ let camera: THREE.PerspectiveCamera,
 
 let cameraX: number = 0, // rotación de la cámara
     cameraY: number = 1.7, // altura de la cámara (altura de una persona aprox)
-    cameraZ: number = 8; // lejania de la cámara
+    cameraZ: number = 0; // lejania de la cámara
     
 let width: number,
     height: number;
@@ -34,9 +33,7 @@ if (node){
     container = node;
     console.log("Container div 'three' loaded succesfully");
 
-    console.log("Container div width is 0 = " + (container.offsetWidth == 0));
-    // width = container.offsetWidth;
-    // height = container.offsetHeight;
+    console.log("Container div width is " + container.offsetWidth);
 
     width = 800;
     height = 400;
@@ -44,15 +41,13 @@ if (node){
 else{
     console.log('No container detected. Configuring default values.');
     width = 800;
-    height = 600;
+    height = 400;
 }
 
 var terrainAngle = document.getElementById("terrainAngle");
-var terrainSkew = document.getElementById("terrainSkew");
 
-if(terrainAngle && terrainSkew){
+if(terrainAngle){
     terrainAngle.addEventListener("change", onTerrainAngleChanged);
-    terrainSkew.addEventListener("change", onTerrainSkewChanged)
 }
 
 init();
@@ -71,12 +66,11 @@ function init() {
     // camera
     camera = new THREE.PerspectiveCamera(70, (width / height), 1, 3000);
     camera.position.set(cameraX, cameraY, cameraZ);
-    camera.lookAt(0, 0, 0);
 
     // scene
     scene = new THREE.Scene();
-    scene.add(new THREE.GridHelper(30, 10));
-    scene.translateY(-1.7);
+    scene.add(new THREE.GridHelper(50, 50));
+    scene.translateY(-1.8);
 
     sceneRotation = scene.rotation;
     verticalSceneAngle = scene.rotation.x;
@@ -85,18 +79,12 @@ function init() {
     console.log("vertical & horizontal angles: " + verticalSceneAngle + " " + horizontalSceneAngle);
 
     // background
-    let texture = new THREE.TextureLoader().load("textures/backyard.jpg");
+    let texture = new THREE.TextureLoader().load("textures/room.jpg");
     scene.background = texture;
 
     // light
     let ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
-
-    // orbit controls
-    orbitControls = new OrbitControls(camera, renderer.domElement);
-    orbitControls.enabled = false;
-    // orbitControls.update();
-    // orbitControls.addEventListener('change', render);
 
     //transform controls 
     transformControls = new TransformControls(camera, renderer.domElement);
@@ -104,7 +92,6 @@ function init() {
     transformControls.showY = false;
     transformControls.size = 2;
     transformControls.addEventListener('change', render);
-
 
     // model load
     new MTLLoader()
@@ -162,25 +149,17 @@ function onWindowResize() {
 function onModelLoaded(object: THREE.Group) {
     model = object;
     // model.scale.copy(new THREE.Vector3(1, 1, 1)); // model scaling
-    model.position.copy(new Vector3(model.position.x, model.position.y - 1.3, model.position.z)); // acomodo el modelo al nivel del suelo
+    model.position.copy(new Vector3(model.position.x, model.position.y - 1.3, model.position.z - 10)); // acomodo el modelo al nivel del suelo
     scene.add(model);
-    transformControls.attach(model);
     scene.add(transformControls);
+    transformControls.attach(model);
     render();
 }
 
 function onTerrainAngleChanged(event: any){
     var value = event.target.value / 100;
     let axis = new Vector3(1,0,0).normalize();
-    scene.setRotationFromAxisAngle(axis, value);
-    console.log(sceneRotation);
-    render();
-}
-
-function onTerrainSkewChanged(event: any){
-    var value = event.target.value / 100;
-    let axis = new Vector3(0,0,1).normalize();
-    scene.setRotationFromAxisAngle(axis, value);
+    scene.setRotationFromAxisAngle(axis, verticalSceneAngle + value);
     console.log(sceneRotation);
     render();
 }
