@@ -51,6 +51,8 @@ function init() {
 
     //transform controls 
     transformControls = new TransformControls(camera, renderer.domElement);
+    transformControls.showY = false;
+    transformControls.setMode("translate");
     transformControls.addEventListener('change', render);
     transformControls.addEventListener('dragging-changed', function (event) {
         orbitControls.enabled = !event.value;
@@ -73,12 +75,6 @@ function init() {
     window.addEventListener('resize', onWindowResize, false);
     window.addEventListener('keydown', function (event) {
         switch (event.keyCode) {
-            case 87: // W
-                transformControls.setMode("translate");
-                break;
-            case 69: // E
-                transformControls.setMode("rotate");
-                break;
             case 187:
             case 107: // +, =, num+
                 transformControls.setSize(transformControls.size + 0.1);
@@ -86,15 +82,6 @@ function init() {
             case 189:
             case 109: // -, _, num-
                 transformControls.setSize(Math.max(transformControls.size - 0.1, 0.1));
-                break;
-            case 88: // X
-                transformControls.showX = !transformControls.showX;
-                break;
-            case 89: // Y
-                transformControls.showY = !transformControls.showY;
-                break;
-            case 90: // Z
-                transformControls.showZ = !transformControls.showZ;
                 break;
             case 32: // Spacebar
                 transformControls.enabled = !transformControls.enabled;
