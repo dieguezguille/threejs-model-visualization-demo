@@ -5,6 +5,7 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { Vector3 } from 'three';
+import { update } from 'lodash';
 
 let camera: THREE.PerspectiveCamera,
     scene: THREE.Scene,
@@ -16,9 +17,14 @@ let camera: THREE.PerspectiveCamera,
 let cameraX: number = 0, // rotación de la cámara
     cameraY: number = 1.7, // altura de la cámara (altura de una persona aprox)
     cameraZ: number = 8; // lejania de la cámara
-
+    
 let width: number,
     height: number;
+
+let sceneRotation: THREE.Euler;
+
+let verticalSceneAngle: number,
+    horizontalSceneAngle: number;
 
 let container: HTMLElement;
 
@@ -71,7 +77,12 @@ function init() {
     scene = new THREE.Scene();
     scene.add(new THREE.GridHelper(30, 10));
     scene.translateY(-1.7);
-    scene.rotateX(0);
+
+    sceneRotation = scene.rotation;
+    verticalSceneAngle = scene.rotation.x;
+    horizontalSceneAngle = scene.rotation.y;
+
+    console.log("vertical & horizontal angles: " + verticalSceneAngle + " " + horizontalSceneAngle);
 
     // background
     let texture = new THREE.TextureLoader().load("textures/backyard.jpg");
@@ -159,18 +170,21 @@ function onModelLoaded(object: THREE.Group) {
 }
 
 function onTerrainAngleChanged(event: any){
-    var newHeight = event.target.value;
-    scene.setRotationFromAxisAngle(new Vector3(1,0,0), newHeight / 100);
+    var value = event.target.value / 100;
+    let axis = new Vector3(1,0,0).normalize();
+    scene.setRotationFromAxisAngle(axis, value);
+    console.log(sceneRotation);
     render();
 }
 
 function onTerrainSkewChanged(event: any){
-    var newHeight = event.target.value;
-    scene.setRotationFromAxisAngle(new Vector3(0,0,1), newHeight / 100);
+    var value = event.target.value / 100;
+    let axis = new Vector3(0,0,1).normalize();
+    scene.setRotationFromAxisAngle(axis, value);
+    console.log(sceneRotation);
     render();
 }
 
 function render() {
-    transformControls.attach(model);
     renderer.render(scene, camera);
 }

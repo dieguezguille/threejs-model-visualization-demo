@@ -26,6 +26,10 @@ body {
 	align-items: center;
 }
 
+#controls input{
+	margin: 5px;
+}
+
 a {
 	color: #ff0;
 	text-decoration: none;
