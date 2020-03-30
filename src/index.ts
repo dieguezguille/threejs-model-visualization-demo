@@ -10,7 +10,7 @@ let camera: THREE.PerspectiveCamera,
     scene: THREE.Scene,
     renderer: THREE.WebGLRenderer,
     transformControls: TransformControls,
-    model: THREE.Group;
+    modelGroup: THREE.Group;
 // orbitControls: OrbitControls;
 
 let cameraX: number = 0, // rotación de la cámara
@@ -30,7 +30,7 @@ let gridHelper = new THREE.GridHelper(20, 10);
 let node = document.getElementById("three");
 let gridHelperCheckbox = <HTMLInputElement>document.getElementById("gridHelperCheckbox");
 
-let globalPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 1.9);
+// let globalPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 1.9);
 
 if (node) {
     container = node;
@@ -69,9 +69,8 @@ function init() {
     container.appendChild(renderer.domElement);
 
     // ***** Clipping setup (renderer): *****
-    var globalPlanes = [ globalPlane ];
-    renderer.clippingPlanes = globalPlanes;
-    renderer.localClippingEnabled = true;
+    // var globalPlanes = [ globalPlane ];
+    // renderer.clippingPlanes = globalPlanes;
 
     // camera
     camera = new THREE.PerspectiveCamera(55, (width / height), 1, 3000);
@@ -156,14 +155,38 @@ function onWindowResize() {
     render();
 }
 
-function onModelLoaded(object: THREE.Group) {
-    model = object;
-    // model.scale.copy(new THREE.Vector3(1, 1, 1)); // model scaling
-    model.position.copy(new Vector3(model.position.x, model.position.y - 1.3, model.position.z - 2)); // acomodo el modelo al nivel del suelo
-    scene.add(model);
-    render();
+function onModelLoaded(loadedModel: THREE.Group) {
+
+    // model = object;
+
+    // create group
+    modelGroup = new THREE.Group();
+    modelGroup.name = 'group';
+    scene.add(modelGroup);
+
+    // the inside of pool
+    loadedModel.renderOrder = 3;
+    modelGroup.add(loadedModel);
+
+    // the invisibility cloak (box with a hole)
+    let cloakGeometry = new THREE.BoxGeometry(7, 4, 3.1);
+    cloakGeometry.faces.splice(4, 2); // make hole by removing top two triangles
+
+    let cloakMaterial = new THREE.MeshBasicMaterial({
+        colorWrite: false
+    });
+
+    let cloakMesh = new THREE.Mesh(cloakGeometry, cloakMaterial);
+    cloakMesh.scale.set(1, 1, 1).multiplyScalar(1.01);
+    cloakMesh.position.y = -0.7;
+    cloakMesh.renderOrder = 0;
+    modelGroup.add(cloakMesh);
+
+    // final adjustments
+    modelGroup.position.copy(new Vector3(modelGroup.position.x, modelGroup.position.y - 1.3, modelGroup.position.z - 4)); // acomodo el modelo al nivel del suelo
     scene.add(transformControls);
-    transformControls.attach(model);
+    transformControls.attach(modelGroup);
+
     render();
 }
 
