@@ -2,9 +2,9 @@ import * as _ from 'lodash';
 import * as THREE from 'three';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
-import { Vector3, GridHelper } from 'three';
+import { Vector3 } from 'three';
 
 let camera: THREE.PerspectiveCamera,
     scene: THREE.Scene,
@@ -26,11 +26,11 @@ let verticalSceneAngle: number,
     horizontalSceneAngle: number;
 
 let container: HTMLElement;
-
 let gridHelper = new THREE.GridHelper(20, 10);
+let node = document.getElementById("three");
+let gridHelperCheckbox = <HTMLInputElement>document.getElementById("gridHelperCheckbox");
 
-var node = document.getElementById("three");
-var gridHelperCheckbox = <HTMLInputElement> document.getElementById("gridHelperCheckbox");
+let globalPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 1.9);
 
 if (node) {
     container = node;
@@ -67,6 +67,11 @@ function init() {
     renderer.setClearColor(0xffffff, 0);
     renderer.gammaFactor = 2.2;
     container.appendChild(renderer.domElement);
+
+    // ***** Clipping setup (renderer): *****
+    var globalPlanes = [ globalPlane ];
+    renderer.clippingPlanes = globalPlanes;
+    renderer.localClippingEnabled = true;
 
     // camera
     camera = new THREE.PerspectiveCamera(55, (width / height), 1, 3000);
@@ -156,6 +161,7 @@ function onModelLoaded(object: THREE.Group) {
     // model.scale.copy(new THREE.Vector3(1, 1, 1)); // model scaling
     model.position.copy(new Vector3(model.position.x, model.position.y - 1.3, model.position.z - 2)); // acomodo el modelo al nivel del suelo
     scene.add(model);
+    render();
     scene.add(transformControls);
     transformControls.attach(model);
     render();
