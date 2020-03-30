@@ -4,19 +4,19 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
-import { Vector3 } from 'three';
+import { Vector3, GridHelper } from 'three';
 
 let camera: THREE.PerspectiveCamera,
     scene: THREE.Scene,
     renderer: THREE.WebGLRenderer,
     transformControls: TransformControls,
-    model: THREE.Group,
-    orbitControls: OrbitControls;
+    model: THREE.Group;
+// orbitControls: OrbitControls;
 
 let cameraX: number = 0, // rotación de la cámara
     cameraY: number = 1.7, // altura de la cámara (altura de una persona aprox)
-    cameraZ: number = 0; // lejania de la cámara
-    
+    cameraZ: number = 10; // lejania de la cámara
+
 let width: number,
     height: number;
 
@@ -27,18 +27,19 @@ let verticalSceneAngle: number,
 
 let container: HTMLElement;
 
-var node = document.getElementById("three");
+let gridHelper = new THREE.GridHelper(20, 10);
 
-if (node){
+var node = document.getElementById("three");
+var gridHelperCheckbox = <HTMLInputElement> document.getElementById("gridHelperCheckbox");
+
+if (node) {
     container = node;
     console.log("Container div 'three' loaded succesfully");
-
     console.log("Container div width is " + container.offsetWidth);
-
     width = 800;
     height = 400;
 }
-else{
+else {
     console.log('No container detected. Configuring default values.');
     width = 800;
     height = 400;
@@ -46,8 +47,12 @@ else{
 
 var terrainAngle = document.getElementById("terrainAngle");
 
-if(terrainAngle){
+if (terrainAngle) {
     terrainAngle.addEventListener("change", onTerrainAngleChanged);
+}
+
+if (gridHelperCheckbox) {
+    gridHelperCheckbox.addEventListener("click", onGridHelperCheckboxClicked);
 }
 
 init();
@@ -64,12 +69,12 @@ function init() {
     container.appendChild(renderer.domElement);
 
     // camera
-    camera = new THREE.PerspectiveCamera(70, (width / height), 1, 3000);
+    camera = new THREE.PerspectiveCamera(55, (width / height), 1, 3000);
     camera.position.set(cameraX, cameraY, cameraZ);
 
     // scene
     scene = new THREE.Scene();
-    scene.add(new THREE.GridHelper(50, 50));
+    scene.add(gridHelper);
     scene.translateY(-1.8);
 
     sceneRotation = scene.rotation;
@@ -149,19 +154,26 @@ function onWindowResize() {
 function onModelLoaded(object: THREE.Group) {
     model = object;
     // model.scale.copy(new THREE.Vector3(1, 1, 1)); // model scaling
-    model.position.copy(new Vector3(model.position.x, model.position.y - 1.3, model.position.z - 10)); // acomodo el modelo al nivel del suelo
+    model.position.copy(new Vector3(model.position.x, model.position.y - 1.3, model.position.z - 2)); // acomodo el modelo al nivel del suelo
     scene.add(model);
     scene.add(transformControls);
     transformControls.attach(model);
     render();
 }
 
-function onTerrainAngleChanged(event: any){
+function onTerrainAngleChanged(event: any) {
     var value = event.target.value / 100;
-    let axis = new Vector3(1,0,0).normalize();
+    let axis = new Vector3(1, 0, 0).normalize();
     scene.setRotationFromAxisAngle(axis, verticalSceneAngle + value);
     console.log(sceneRotation);
     render();
+}
+
+function onGridHelperCheckboxClicked(event: any) {
+    if (gridHelperCheckbox) {
+        gridHelper.visible = gridHelperCheckbox.checked;
+        render();
+    }
 }
 
 function render() {
