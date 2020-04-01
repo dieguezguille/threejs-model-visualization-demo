@@ -40,7 +40,6 @@ let rightButton = <HTMLInputElement>document.getElementById("rightButton");
 let rotateLeftButton = <HTMLInputElement>document.getElementById("rotateLeftButton");
 let rotateRightButton = <HTMLInputElement>document.getElementById("rotateRightButton");
 
-
 if (node) {
     container = node;
     console.log("Container div 'three' loaded succesfully");
