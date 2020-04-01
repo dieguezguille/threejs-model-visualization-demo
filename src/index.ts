@@ -176,6 +176,7 @@ function onModelLoaded(loadedModel: THREE.Group) {
     modelGroup.position.copy(new Vector3(modelGroup.position.x, modelGroup.position.y - 1.3, modelGroup.position.z - 4)); // acomodo el modelo al nivel del suelo
     scene.add(transformControls);
     transformControls.attach(modelGroup);
+    transformControls.translateOnAxis(new Vector3(0,1,0), 3.2);
 
     render();
 }
