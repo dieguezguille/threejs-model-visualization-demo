@@ -5,6 +5,7 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { Vector3 } from 'three';
 
+// CAMERA
 let camera: THREE.PerspectiveCamera,
     scene: THREE.Scene,
     renderer: THREE.WebGLRenderer,
@@ -25,7 +26,17 @@ let verticalSceneAngle: number,
 
 let container: HTMLElement;
 let gridHelper = new THREE.GridHelper(20, 10);
+
+// UI
 let node = document.getElementById("three");
+let terrainAngle = <HTMLInputElement>document.getElementById("terrainAngle");
+let gridHelperCheckbox = <HTMLInputElement>document.getElementById("gridHelperCheckbox");
+let upButton = <HTMLInputElement>document.getElementById("upButton");
+let downButton = <HTMLInputElement>document.getElementById("downButton");
+let leftButton = <HTMLInputElement>document.getElementById("leftButton");
+let rightButton = <HTMLInputElement>document.getElementById("rightButton");
+let rotateLeftButton = <HTMLInputElement>document.getElementById("rotateLeftButton");
+let rotateRightButton = <HTMLInputElement>document.getElementById("rotateRightButton");
 
 if (node) {
     container = node;
@@ -40,19 +51,9 @@ else {
     height = 400;
 }
 
-
-let terrainAngle = <HTMLInputElement>document.getElementById("terrainAngle");
-let helperControlsCheckbox = <HTMLInputElement>document.getElementById("helperControlsCheckbox");
-let upButton = <HTMLInputElement>document.getElementById("upButton");
-let downButton = <HTMLInputElement>document.getElementById("downButton");
-let leftButton = <HTMLInputElement>document.getElementById("leftButton");
-let rightButton = <HTMLInputElement>document.getElementById("rightButton");
-let rotateLeftButton = <HTMLInputElement>document.getElementById("rotateLeftButton");
-let rotateRightButton = <HTMLInputElement>document.getElementById("rotateRightButton");
-
-if (terrainAngle && helperControlsCheckbox && upButton && downButton && leftButton && rightButton && rotateLeftButton && rotateRightButton) {
+if (terrainAngle && gridHelperCheckbox && upButton && downButton && leftButton && rightButton && rotateLeftButton && rotateRightButton) {
     terrainAngle.addEventListener("change", onTerrainAngleChanged);
-    helperControlsCheckbox.addEventListener("click", onHelperControlsCheckboxClicked);
+    gridHelperCheckbox.addEventListener("click", onGridHelperCheckboxClicked);
     upButton.addEventListener("click", onUpButtonClicked);
     downButton.addEventListener("click", onDownButtonClicked);
     leftButton.addEventListener("click", onLeftButonClicked);
@@ -90,7 +91,7 @@ function init() {
     console.log("vertical & horizontal angles: " + verticalSceneAngle + " " + horizontalSceneAngle);
 
     // background
-    let texture = new THREE.TextureLoader().load("textures/backyard.jpg");
+    let texture = new THREE.TextureLoader().load("textures/room.jpg");
     scene.background = texture;
 
     // light
@@ -182,7 +183,7 @@ function onModelLoaded(loadedModel: THREE.Group) {
     modelGroup.add(cloakMesh);
 
     // final adjustments
-    modelGroup.position.copy(new Vector3(modelGroup.position.x, modelGroup.position.y - 1.3, modelGroup.position.z)); // acomodo el modelo al nivel del suelo
+    modelGroup.position.copy(new Vector3(modelGroup.position.x, modelGroup.position.y - 1.3, modelGroup.position.z - 4)); // acomodo el modelo al nivel del suelo
     scene.add(transformControls);
     transformControls.attach(modelGroup);
     transformControls.translateOnAxis(new Vector3(0, 1, 0), 3.2);
@@ -193,16 +194,14 @@ function onModelLoaded(loadedModel: THREE.Group) {
 function onTerrainAngleChanged(event: any) {
     var value = event.target.value / 100;
     let axis = new Vector3(1, 0, 0).normalize();
-    // scene.setRotationFromAxisAngle(axis, verticalSceneAngle + value);
-    sceneRotation.x = verticalSceneAngle + value;
+    scene.setRotationFromAxisAngle(axis, verticalSceneAngle + value);
+    console.log(sceneRotation);
     render();
 }
 
-function onHelperControlsCheckboxClicked(event: any) {
-    if (helperControlsCheckbox) {
-        let value = helperControlsCheckbox.checked;
-        gridHelper.visible = value;
-        transformControls.visible = value;
+function onGridHelperCheckboxClicked(event: any) {
+    if (gridHelperCheckbox) {
+        gridHelper.visible = gridHelperCheckbox.checked;
         render();
     }
 }
