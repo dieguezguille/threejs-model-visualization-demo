@@ -5,6 +5,8 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { Vector3 } from 'three';
 
+
+// SCENE
 let camera: THREE.PerspectiveCamera,
     scene: THREE.Scene,
     renderer: THREE.WebGLRenderer,
@@ -25,7 +27,18 @@ let verticalSceneAngle: number,
 
 let container: HTMLElement;
 let gridHelper = new THREE.GridHelper(20, 10);
+
+// UI
 let node = document.getElementById("three");
+let terrainAngle = <HTMLInputElement>document.getElementById("terrainAngle");
+let helperControlsCheckbox = <HTMLInputElement>document.getElementById("helperControlsCheckbox");
+let upButton = <HTMLInputElement>document.getElementById("upButton");
+let downButton = <HTMLInputElement>document.getElementById("downButton");
+let leftButton = <HTMLInputElement>document.getElementById("leftButton");
+let rightButton = <HTMLInputElement>document.getElementById("rightButton");
+let rotateLeftButton = <HTMLInputElement>document.getElementById("rotateLeftButton");
+let rotateRightButton = <HTMLInputElement>document.getElementById("rotateRightButton");
+
 
 if (node) {
     container = node;
@@ -39,16 +52,6 @@ else {
     width = 800;
     height = 400;
 }
-
-
-let terrainAngle = <HTMLInputElement>document.getElementById("terrainAngle");
-let helperControlsCheckbox = <HTMLInputElement>document.getElementById("helperControlsCheckbox");
-let upButton = <HTMLInputElement>document.getElementById("upButton");
-let downButton = <HTMLInputElement>document.getElementById("downButton");
-let leftButton = <HTMLInputElement>document.getElementById("leftButton");
-let rightButton = <HTMLInputElement>document.getElementById("rightButton");
-let rotateLeftButton = <HTMLInputElement>document.getElementById("rotateLeftButton");
-let rotateRightButton = <HTMLInputElement>document.getElementById("rotateRightButton");
 
 if (terrainAngle && helperControlsCheckbox && upButton && downButton && leftButton && rightButton && rotateLeftButton && rotateRightButton) {
     terrainAngle.addEventListener("change", onTerrainAngleChanged);
@@ -169,7 +172,7 @@ function onModelLoaded(loadedModel: THREE.Group) {
 
     // the invisibility box with a hole
     let cloakGeometry = new THREE.BoxGeometry(6.6, 4, 3.1);
-    cloakGeometry.faces.splice(4, 2); // make hole by removing top two triangles
+    cloakGeometry.faces.splice(4, 2); // make hole on top by removing top two triangles
 
     let cloakMaterial = new THREE.MeshBasicMaterial({
         colorWrite: false
@@ -192,8 +195,6 @@ function onModelLoaded(loadedModel: THREE.Group) {
 
 function onTerrainAngleChanged(event: any) {
     var value = event.target.value / 100;
-    let axis = new Vector3(1, 0, 0).normalize();
-    // scene.setRotationFromAxisAngle(axis, verticalSceneAngle + value);
     sceneRotation.x = verticalSceneAngle + value;
     render();
 }
