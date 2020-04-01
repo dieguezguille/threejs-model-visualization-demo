@@ -2,7 +2,6 @@ import * as _ from 'lodash';
 import * as THREE from 'three';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
-// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { Vector3 } from 'three';
 
@@ -27,7 +26,6 @@ let verticalSceneAngle: number,
 let container: HTMLElement;
 let gridHelper = new THREE.GridHelper(20, 10);
 let node = document.getElementById("three");
-let gridHelperCheckbox = <HTMLInputElement>document.getElementById("gridHelperCheckbox");
 
 if (node) {
     container = node;
@@ -42,14 +40,25 @@ else {
     height = 400;
 }
 
-var terrainAngle = document.getElementById("terrainAngle");
 
-if (terrainAngle) {
+let terrainAngle = <HTMLInputElement>document.getElementById("terrainAngle");
+let gridHelperCheckbox = <HTMLInputElement>document.getElementById("gridHelperCheckbox");
+let upButton = <HTMLInputElement>document.getElementById("upButton");
+let downButton = <HTMLInputElement>document.getElementById("downButton");
+let leftButton = <HTMLInputElement>document.getElementById("leftButton");
+let rightButton = <HTMLInputElement>document.getElementById("rightButton");
+let rotateLeftButton = <HTMLInputElement>document.getElementById("rotateLeftButton");
+let rotateRightButton = <HTMLInputElement>document.getElementById("rotateRightButton");
+
+if (terrainAngle && gridHelperCheckbox && upButton && downButton && leftButton && rightButton && rotateLeftButton && rotateRightButton) {
     terrainAngle.addEventListener("change", onTerrainAngleChanged);
-}
-
-if (gridHelperCheckbox) {
     gridHelperCheckbox.addEventListener("click", onGridHelperCheckboxClicked);
+    upButton.addEventListener("click", onUpButtonClicked);
+    downButton.addEventListener("click", onDownButtonClicked);
+    leftButton.addEventListener("click", onLeftButonClicked);
+    rightButton.addEventListener("click", onRightButtonClicked);
+    rotateLeftButton.addEventListener("click", onRotateLeftButtonClicked);
+    rotateRightButton.addEventListener("click", onRotateRightButtonClicked);
 }
 
 init();
@@ -176,7 +185,7 @@ function onModelLoaded(loadedModel: THREE.Group) {
     modelGroup.position.copy(new Vector3(modelGroup.position.x, modelGroup.position.y - 1.3, modelGroup.position.z - 4)); // acomodo el modelo al nivel del suelo
     scene.add(transformControls);
     transformControls.attach(modelGroup);
-    transformControls.translateOnAxis(new Vector3(0,1,0), 3.2);
+    transformControls.translateOnAxis(new Vector3(0, 1, 0), 3.2);
 
     render();
 }
@@ -194,6 +203,36 @@ function onGridHelperCheckboxClicked(event: any) {
         gridHelper.visible = gridHelperCheckbox.checked;
         render();
     }
+}
+
+function onUpButtonClicked(event: any) {
+    modelGroup.position.z -= 0.1;
+    render();
+}
+
+function onDownButtonClicked(event: any) {
+    modelGroup.position.z += 0.1;
+    render();
+}
+
+function onLeftButonClicked(event: any) {
+    modelGroup.position.x -= 0.1;
+    render();
+}
+
+function onRightButtonClicked(event: any) {
+    modelGroup.position.x += 0.1;
+    render();
+}
+
+function onRotateLeftButtonClicked(event: any) {
+    modelGroup.rotation.y -= 0.1;
+    render();
+}
+
+function onRotateRightButtonClicked(event: any) {
+    modelGroup.rotation.y += 0.1;
+    render();
 }
 
 function render() {
