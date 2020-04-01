@@ -168,7 +168,7 @@ function onModelLoaded(loadedModel: THREE.Group) {
     modelGroup.add(loadedModel);
 
     // the invisibility box with a hole
-    let cloakGeometry = new THREE.BoxGeometry(7, 4, 3.1);
+    let cloakGeometry = new THREE.BoxGeometry(6.6, 4, 3.1);
     cloakGeometry.faces.splice(4, 2); // make hole by removing top two triangles
 
     let cloakMaterial = new THREE.MeshBasicMaterial({
