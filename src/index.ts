@@ -5,6 +5,7 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { Vector3 } from 'three';
 
+// CAMERA
 let camera: THREE.PerspectiveCamera,
     scene: THREE.Scene,
     renderer: THREE.WebGLRenderer,
@@ -25,7 +26,17 @@ let verticalSceneAngle: number,
 
 let container: HTMLElement;
 let gridHelper = new THREE.GridHelper(20, 10);
+
+// UI
 let node = document.getElementById("three");
+let terrainAngle = <HTMLInputElement>document.getElementById("terrainAngle");
+let gridHelperCheckbox = <HTMLInputElement>document.getElementById("gridHelperCheckbox");
+let upButton = <HTMLInputElement>document.getElementById("upButton");
+let downButton = <HTMLInputElement>document.getElementById("downButton");
+let leftButton = <HTMLInputElement>document.getElementById("leftButton");
+let rightButton = <HTMLInputElement>document.getElementById("rightButton");
+let rotateLeftButton = <HTMLInputElement>document.getElementById("rotateLeftButton");
+let rotateRightButton = <HTMLInputElement>document.getElementById("rotateRightButton");
 
 if (node) {
     container = node;
@@ -39,16 +50,6 @@ else {
     width = 800;
     height = 400;
 }
-
-
-let terrainAngle = <HTMLInputElement>document.getElementById("terrainAngle");
-let gridHelperCheckbox = <HTMLInputElement>document.getElementById("gridHelperCheckbox");
-let upButton = <HTMLInputElement>document.getElementById("upButton");
-let downButton = <HTMLInputElement>document.getElementById("downButton");
-let leftButton = <HTMLInputElement>document.getElementById("leftButton");
-let rightButton = <HTMLInputElement>document.getElementById("rightButton");
-let rotateLeftButton = <HTMLInputElement>document.getElementById("rotateLeftButton");
-let rotateRightButton = <HTMLInputElement>document.getElementById("rotateRightButton");
 
 if (terrainAngle && gridHelperCheckbox && upButton && downButton && leftButton && rightButton && rotateLeftButton && rotateRightButton) {
     terrainAngle.addEventListener("change", onTerrainAngleChanged);
