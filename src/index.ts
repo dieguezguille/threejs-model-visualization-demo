@@ -11,9 +11,8 @@ let camera: THREE.PerspectiveCamera,
     renderer: THREE.WebGLRenderer,
     transformControls: TransformControls,
     modelGroup: THREE.Group;
-// orbitControls: OrbitControls;
 
-let cameraX: number = 0, // rotación de la cámara
+let cameraX: number = 0,
     cameraY: number = 1.7, // altura de la cámara (altura de una persona aprox)
     cameraZ: number = 10; // lejania de la cámara
 
@@ -29,8 +28,6 @@ let container: HTMLElement;
 let gridHelper = new THREE.GridHelper(20, 10);
 let node = document.getElementById("three");
 let gridHelperCheckbox = <HTMLInputElement>document.getElementById("gridHelperCheckbox");
-
-// let globalPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 1.9);
 
 if (node) {
     container = node;
@@ -67,10 +64,6 @@ function init() {
     renderer.setClearColor(0xffffff, 0);
     renderer.gammaFactor = 2.2;
     container.appendChild(renderer.domElement);
-
-    // ***** Clipping setup (renderer): *****
-    // var globalPlanes = [ globalPlane ];
-    // renderer.clippingPlanes = globalPlanes;
 
     // camera
     camera = new THREE.PerspectiveCamera(55, (width / height), 1, 3000);
@@ -156,9 +149,6 @@ function onWindowResize() {
 }
 
 function onModelLoaded(loadedModel: THREE.Group) {
-
-    // model = object;
-
     // create group
     modelGroup = new THREE.Group();
     modelGroup.name = 'group';
@@ -168,7 +158,7 @@ function onModelLoaded(loadedModel: THREE.Group) {
     loadedModel.renderOrder = 3;
     modelGroup.add(loadedModel);
 
-    // the invisibility cloak (box with a hole)
+    // the invisibility box with a hole
     let cloakGeometry = new THREE.BoxGeometry(7, 4, 3.1);
     cloakGeometry.faces.splice(4, 2); // make hole by removing top two triangles
 
