@@ -10,7 +10,7 @@ import { Vector3 } from 'three';
 let camera: THREE.PerspectiveCamera,
     scene: THREE.Scene,
     renderer: THREE.WebGLRenderer,
-    transformControls: TransformControls,
+    // transformControls: TransformControls,
     modelGroup: THREE.Group;
 
 let cameraX: number = 0,
@@ -26,11 +26,12 @@ let verticalSceneAngle: number,
     horizontalSceneAngle: number;
 
 let container: HTMLElement;
-let gridHelper = new THREE.GridHelper(20, 10);
+let gridHelper = new THREE.GridHelper(200, 100);
 
 // UI
 let node = document.getElementById("three");
 let terrainAngle = <HTMLInputElement>document.getElementById("terrainAngle");
+let terrainSkew = <HTMLInputElement>document.getElementById("terrainSkew");
 let helperControlsCheckbox = <HTMLInputElement>document.getElementById("helperControlsCheckbox");
 let upButton = <HTMLInputElement>document.getElementById("upButton");
 let downButton = <HTMLInputElement>document.getElementById("downButton");
@@ -53,8 +54,9 @@ else {
     height = 400;
 }
 
-if (terrainAngle && helperControlsCheckbox && upButton && downButton && leftButton && rightButton && rotateLeftButton && rotateRightButton) {
+if (terrainAngle && terrainSkew && helperControlsCheckbox && upButton && downButton && leftButton && rightButton && rotateLeftButton && rotateRightButton) {
     terrainAngle.addEventListener("change", onTerrainAngleChanged);
+    terrainSkew.addEventListener("change", onTerrainSkewChanged);
     helperControlsCheckbox.addEventListener("click", onHelperControlsCheckboxClicked);
     upButton.addEventListener("click", onUpButtonClicked);
     downButton.addEventListener("click", onDownButtonClicked);
@@ -78,7 +80,7 @@ function init() {
     container.appendChild(renderer.domElement);
 
     // camera
-    camera = new THREE.PerspectiveCamera(55, (width / height), 1, 3000);
+    camera = new THREE.PerspectiveCamera(50, (width / height), 1, 2000);
     camera.position.set(cameraX, cameraY, cameraZ);
 
     // scene
@@ -101,11 +103,11 @@ function init() {
     scene.add(ambientLight);
 
     //transform controls 
-    transformControls = new TransformControls(camera, renderer.domElement);
-    transformControls.setMode("translate");
-    transformControls.showY = false;
-    transformControls.size = 2;
-    transformControls.addEventListener('change', render);
+    // transformControls = new TransformControls(camera, renderer.domElement);
+    // transformControls.setMode("translate");
+    // transformControls.showY = false;
+    // transformControls.size = 2;
+    // transformControls.addEventListener('change', render);
 
     // model load
     new MTLLoader()
@@ -122,33 +124,33 @@ function init() {
         });
 
     window.addEventListener('resize', onWindowResize, false);
-    window.addEventListener('keydown', function (event) {
-        switch (event.keyCode) {
-            case 87: // W
-                transformControls.setMode("translate");
-                transformControls.showY = false;
-                transformControls.showX = true;
-                transformControls.showZ = true;
-                break;
-            case 69: // E
-                transformControls.setMode("rotate");
-                transformControls.showY = true;
-                transformControls.showX = false;
-                transformControls.showZ = false;
-                break;
-            case 187:
-            case 107: // +
-                transformControls.setSize(transformControls.size + 0.1);
-                break;
-            case 189:
-            case 109: // -
-                transformControls.setSize(Math.max(transformControls.size - 0.1, 0.1));
-                break;
-            case 32: // Spacebar
-                transformControls.enabled = !transformControls.enabled;
-                break;
-        }
-    });
+    // window.addEventListener('keydown', function (event) {
+    //     switch (event.keyCode) {
+    //         case 87: // W
+    //             transformControls.setMode("translate");
+    //             transformControls.showY = false;
+    //             transformControls.showX = true;
+    //             transformControls.showZ = true;
+    //             break;
+    //         case 69: // E
+    //             transformControls.setMode("rotate");
+    //             transformControls.showY = true;
+    //             transformControls.showX = false;
+    //             transformControls.showZ = false;
+    //             break;
+    //         case 187:
+    //         case 107: // +
+    //             transformControls.setSize(transformControls.size + 0.1);
+    //             break;
+    //         case 189:
+    //         case 109: // -
+    //             transformControls.setSize(Math.max(transformControls.size - 0.1, 0.1));
+    //             break;
+    //         case 32: // Spacebar
+    //             transformControls.enabled = !transformControls.enabled;
+    //             break;
+    //     }
+    // });
 }
 
 function onWindowResize() {
@@ -186,9 +188,10 @@ function onModelLoaded(loadedModel: THREE.Group) {
 
     // final adjustments
     modelGroup.position.copy(new Vector3(modelGroup.position.x, modelGroup.position.y - 1.3, modelGroup.position.z)); // acomodo el modelo al nivel del suelo
-    scene.add(transformControls);
-    transformControls.attach(modelGroup);
-    transformControls.translateOnAxis(new Vector3(0, 1, 0), 3.2);
+    modelGroup.scale.set(2,2,2);
+    // scene.add(transformControls);
+    // transformControls.attach(modelGroup);
+    // transformControls.translateOnAxis(new Vector3(0, 1, 0), 3.2);
 
     render();
 }
@@ -199,11 +202,17 @@ function onTerrainAngleChanged(event: any) {
     render();
 }
 
+function onTerrainSkewChanged(event: any){
+    var value = event.target.value / 100;
+    sceneRotation.z = horizontalSceneAngle + value;
+    render();
+}
+
 function onHelperControlsCheckboxClicked(event: any) {
     if (helperControlsCheckbox) {
         let value = helperControlsCheckbox.checked;
         gridHelper.visible = value;
-        transformControls.visible = value;
+        // transformControls.visible = value;
         render();
     }
 }
