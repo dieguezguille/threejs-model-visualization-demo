@@ -94,7 +94,7 @@ function init() {
     console.log("vertical & horizontal angles: " + verticalSceneAngle + " " + horizontalSceneAngle);
 
     // background
-    let texture = new THREE.TextureLoader().load("textures/backyard.jpg");
+    let texture = new THREE.TextureLoader().load("textures/room.jpg");
     scene.background = texture;
 
     // light
