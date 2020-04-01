@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import * as THREE from 'three';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
-import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
+// import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { Vector3 } from 'three';
 
@@ -94,7 +94,7 @@ function init() {
     console.log("vertical & horizontal angles: " + verticalSceneAngle + " " + horizontalSceneAngle);
 
     // background
-    let texture = new THREE.TextureLoader().load("textures/room.jpg");
+    let texture = new THREE.TextureLoader().load("textures/backyard.jpg");
     scene.background = texture;
 
     // light
