@@ -1,10 +1,8 @@
 import * as _ from 'lodash';
 import * as THREE from 'three';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
-// import { TransformControls } from 'three/examples/jsm/controls/TransformControls';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
 import { Vector3 } from 'three';
-
 
 // SCENE
 let camera: THREE.PerspectiveCamera,
@@ -43,7 +41,7 @@ let rotateRightButton = <HTMLInputElement>document.getElementById("rotateRightBu
 if (node) {
     container = node;
     console.log("Container div 'three' loaded succesfully");
-    console.log("Container div width is " + container.offsetWidth);
+    console.log("Container div width is " + container.offsetWidth); // TODO: find containers width and height
     width = 800;
     height = 400;
 }
@@ -165,13 +163,10 @@ function onModelLoaded(loadedModel: THREE.Group) {
     // final adjustments
     modelGroup.position.copy(new Vector3(modelGroup.position.x, modelGroup.position.y - 2.6, modelGroup.position.z)); // acomodo el modelo al nivel del suelo
     modelGroup.scale.set(2, 2, 2);
-    // scene.add(transformControls);
-    // transformControls.attach(modelGroup);
-    // transformControls.translateOnAxis(new Vector3(0, 1, 0), 3.2);
-
     render();
 }
 
+// terrain angle actions
 function onTerrainAngleChanged(event: any) {
     var value = event.target.value / 50;
     sceneRotation.x = verticalSceneAngle + value;
@@ -184,11 +179,11 @@ function onTerrainSkewChanged(event: any) {
     render();
 }
 
+// helper controls actions
 function onHelperControlsCheckboxClicked(event: any) {
     if (helperControlsCheckbox) {
         let value = helperControlsCheckbox.checked;
         gridHelper.visible = value;
-        // transformControls.visible = value;
         render();
     }
 }
