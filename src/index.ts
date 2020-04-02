@@ -10,12 +10,11 @@ import { Vector3 } from 'three';
 let camera: THREE.PerspectiveCamera,
     scene: THREE.Scene,
     renderer: THREE.WebGLRenderer,
-    // transformControls: TransformControls,
     modelGroup: THREE.Group;
 
 let cameraX: number = 0,
     cameraY: number = 1.7, // altura de la cámara (altura de una persona aprox)
-    cameraZ: number = 10; // lejania de la cámara
+    cameraZ: number = 12; // lejania de la cámara
 
 let width: number,
     height: number;
@@ -55,22 +54,26 @@ else {
 }
 
 if (terrainAngle && terrainSkew && helperControlsCheckbox && upButton && downButton && leftButton && rightButton && rotateLeftButton && rotateRightButton) {
+    
     terrainAngle.addEventListener("change", onTerrainAngleChanged);
     terrainSkew.addEventListener("change", onTerrainSkewChanged);
     helperControlsCheckbox.addEventListener("click", onHelperControlsCheckboxClicked);
+
+    // mouse down events
     upButton.addEventListener("mousedown", onUpButtonMouseDown);
     downButton.addEventListener("mousedown", onDownButtonMouseDown);
     leftButton.addEventListener("mousedown", onLeftButtonMouseDown);
     rightButton.addEventListener("mousedown", onRightButtonMouseDown);
     rotateLeftButton.addEventListener("mousedown", onRotateLeftButtonMouseDown);
     rotateRightButton.addEventListener("mousedown", onRotateRightButtonMouseDown);
+
+    // mouse up events
     upButton.addEventListener("mouseup", onUpButtonMouseUp);
     downButton.addEventListener("mouseup", onDownButtonMouseUp);
     leftButton.addEventListener("mouseup", onLeftButtonMouseUp);
     rightButton.addEventListener("mouseup", onRightButtonMouseUp);
     rotateLeftButton.addEventListener("mouseup", onRotateLeftButtonMouseUp);
     rotateRightButton.addEventListener("mouseup", onRotateRightButtonMouseUp);
-
 }
 
 init();
@@ -109,13 +112,6 @@ function init() {
     let ambientLight = new THREE.AmbientLight(0xffffff, 1);
     scene.add(ambientLight);
 
-    //transform controls 
-    // transformControls = new TransformControls(camera, renderer.domElement);
-    // transformControls.setMode("translate");
-    // transformControls.showY = false;
-    // transformControls.size = 2;
-    // transformControls.addEventListener('change', render);
-
     // model load
     new MTLLoader()
         .setPath('models/')
@@ -131,33 +127,6 @@ function init() {
         });
 
     window.addEventListener('resize', onWindowResize, false);
-    // window.addEventListener('keydown', function (event) {
-    //     switch (event.keyCode) {
-    //         case 87: // W
-    //             transformControls.setMode("translate");
-    //             transformControls.showY = false;
-    //             transformControls.showX = true;
-    //             transformControls.showZ = true;
-    //             break;
-    //         case 69: // E
-    //             transformControls.setMode("rotate");
-    //             transformControls.showY = true;
-    //             transformControls.showX = false;
-    //             transformControls.showZ = false;
-    //             break;
-    //         case 187:
-    //         case 107: // +
-    //             transformControls.setSize(transformControls.size + 0.1);
-    //             break;
-    //         case 189:
-    //         case 109: // -
-    //             transformControls.setSize(Math.max(transformControls.size - 0.1, 0.1));
-    //             break;
-    //         case 32: // Spacebar
-    //             transformControls.enabled = !transformControls.enabled;
-    //             break;
-    //     }
-    // });
 }
 
 function onWindowResize() {
@@ -287,7 +256,6 @@ function onRotateRightButtonMouseDown(event: any) {
 }
 
 // mouse up events
-
 function resetTimer() {
     clearInterval(timer);
     timer = null;
