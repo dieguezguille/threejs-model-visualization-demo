@@ -27,6 +27,7 @@ let verticalSceneAngle: number,
 
 let container: HTMLElement;
 let gridHelper = new THREE.GridHelper(200, 100);
+let timer: any;
 
 // UI
 let node = document.getElementById("three");
@@ -57,12 +58,19 @@ if (terrainAngle && terrainSkew && helperControlsCheckbox && upButton && downBut
     terrainAngle.addEventListener("change", onTerrainAngleChanged);
     terrainSkew.addEventListener("change", onTerrainSkewChanged);
     helperControlsCheckbox.addEventListener("click", onHelperControlsCheckboxClicked);
-    upButton.addEventListener("click", onUpButtonClicked);
-    downButton.addEventListener("click", onDownButtonClicked);
-    leftButton.addEventListener("click", onLeftButonClicked);
-    rightButton.addEventListener("click", onRightButtonClicked);
-    rotateLeftButton.addEventListener("click", onRotateLeftButtonClicked);
-    rotateRightButton.addEventListener("click", onRotateRightButtonClicked);
+    upButton.addEventListener("mousedown", onUpButtonMouseDown);
+    downButton.addEventListener("mousedown", onDownButtonMouseDown);
+    leftButton.addEventListener("mousedown", onLeftButtonMouseDown);
+    rightButton.addEventListener("mousedown", onRightButtonMouseDown);
+    rotateLeftButton.addEventListener("mousedown", onRotateLeftButtonMouseDown);
+    rotateRightButton.addEventListener("mousedown", onRotateRightButtonMouseDown);
+    upButton.addEventListener("mouseup", onUpButtonMouseUp);
+    downButton.addEventListener("mouseup", onDownButtonMouseUp);
+    leftButton.addEventListener("mouseup", onLeftButtonMouseUp);
+    rightButton.addEventListener("mouseup", onRightButtonMouseUp);
+    rotateLeftButton.addEventListener("mouseup", onRotateLeftButtonMouseUp);
+    rotateRightButton.addEventListener("mouseup", onRotateRightButtonMouseUp);
+
 }
 
 init();
@@ -85,7 +93,7 @@ function init() {
     // scene
     scene = new THREE.Scene();
     scene.add(gridHelper);
-    scene.translateY(-1.8);
+    scene.translateY(-1.6);
 
     sceneRotation = scene.rotation;
     verticalSceneAngle = scene.rotation.x;
@@ -172,7 +180,7 @@ function onModelLoaded(loadedModel: THREE.Group) {
     modelGroup.add(loadedModel);
 
     // the invisibility box with a hole
-    let cloakGeometry = new THREE.BoxGeometry(6.6, 4, 3.1);
+    let cloakGeometry = new THREE.BoxGeometry(6.5, 4.1, 3.1);
     cloakGeometry.faces.splice(4, 2); // make hole on top by removing top two triangles
 
     let cloakMaterial = new THREE.MeshBasicMaterial({
@@ -186,8 +194,8 @@ function onModelLoaded(loadedModel: THREE.Group) {
     modelGroup.add(cloakMesh);
 
     // final adjustments
-    modelGroup.position.copy(new Vector3(modelGroup.position.x, modelGroup.position.y - 1.3, modelGroup.position.z)); // acomodo el modelo al nivel del suelo
-    modelGroup.scale.set(2,2,2);
+    modelGroup.position.copy(new Vector3(modelGroup.position.x, modelGroup.position.y - 2.6, modelGroup.position.z)); // acomodo el modelo al nivel del suelo
+    modelGroup.scale.set(2, 2, 2);
     // scene.add(transformControls);
     // transformControls.attach(modelGroup);
     // transformControls.translateOnAxis(new Vector3(0, 1, 0), 3.2);
@@ -196,13 +204,13 @@ function onModelLoaded(loadedModel: THREE.Group) {
 }
 
 function onTerrainAngleChanged(event: any) {
-    var value = event.target.value / 100;
+    var value = event.target.value / 50;
     sceneRotation.x = verticalSceneAngle + value;
     render();
 }
 
-function onTerrainSkewChanged(event: any){
-    var value = event.target.value / 100;
+function onTerrainSkewChanged(event: any) {
+    var value = event.target.value / 50;
     sceneRotation.z = horizontalSceneAngle + value;
     render();
 }
@@ -216,34 +224,98 @@ function onHelperControlsCheckboxClicked(event: any) {
     }
 }
 
-function onUpButtonClicked(event: any) {
-    modelGroup.position.z -= 0.1;
+// move actions
+function moveModelDown() {
+    modelGroup.position.z -= 0.01;
     render();
 }
 
-function onDownButtonClicked(event: any) {
-    modelGroup.position.z += 0.1;
+function moveModelUp() {
+    modelGroup.position.z += 0.01;
     render();
 }
 
-function onLeftButonClicked(event: any) {
-    modelGroup.position.x -= 0.1;
+function moveModelLeft() {
+    modelGroup.position.x -= 0.01;
     render();
 }
 
-function onRightButtonClicked(event: any) {
-    modelGroup.position.x += 0.1;
+function moveModelRight() {
+    modelGroup.position.x += 0.01;
     render();
 }
 
-function onRotateLeftButtonClicked(event: any) {
-    modelGroup.rotation.y -= 0.1;
+function rotateModelLeft() {
+    modelGroup.rotation.y -= 0.01;
     render();
 }
 
-function onRotateRightButtonClicked(event: any) {
-    modelGroup.rotation.y += 0.1;
+function rotateModelRight() {
+    modelGroup.rotation.y += 0.01;
     render();
+}
+
+// mouse down events
+function onUpButtonMouseDown(event: any) {
+    if (timer) return;
+    timer = setInterval(moveModelDown, 10);
+}
+
+function onDownButtonMouseDown(event: any) {
+    if (timer) return;
+    timer = setInterval(moveModelUp, 10);
+}
+
+function onLeftButtonMouseDown(event: any) {
+    if (timer) return;
+    timer = setInterval(moveModelLeft, 10);
+}
+
+function onRightButtonMouseDown(event: any) {
+    if (timer) return;
+    timer = setInterval(moveModelRight, 10);
+}
+
+function onRotateLeftButtonMouseDown(event: any) {
+    if (timer) return;
+    timer = setInterval(rotateModelLeft, 10);
+}
+
+function onRotateRightButtonMouseDown(event: any) {
+    if (timer) return;
+    timer = setInterval(rotateModelRight, 10);
+}
+
+// mouse up events
+
+function resetTimer() {
+    clearInterval(timer);
+    timer = null;
+    render();
+}
+
+function onUpButtonMouseUp(event: any) {
+    resetTimer();
+}
+
+function onDownButtonMouseUp(event: any) {
+    resetTimer();
+}
+
+function onLeftButtonMouseUp(event: any) {
+    resetTimer();
+}
+
+function onRightButtonMouseUp(event: any) {
+    resetTimer();
+}
+
+function onRotateLeftButtonMouseUp(event: any) {
+    resetTimer();
+}
+
+function onRotateRightButtonMouseUp(event: any) {
+    resetTimer();
 }
 
 function render() {
