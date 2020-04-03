@@ -12,15 +12,15 @@ let camera: THREE.PerspectiveCamera,
 
 let cameraX: number = 0,
     cameraY: number = 1.7, // altura de la cámara (altura de una persona aprox)
-    cameraZ: number = 12; // lejania de la cámara
+    cameraZ: number = 2; // lejania de la cámara
 
 let width: number,
     height: number;
 
 let sceneRotation: THREE.Euler;
 
-let verticalSceneAngle: number,
-    horizontalSceneAngle: number;
+let verticalSceneSlope: number,
+    horizontalSceneTilt: number;
 
 let container: HTMLElement;
 let gridHelper = new THREE.GridHelper(200, 100);
@@ -28,8 +28,8 @@ let timer: any;
 
 // UI
 let node = document.getElementById("three");
-let terrainAngle = <HTMLInputElement>document.getElementById("terrainAngle");
-let terrainSkew = <HTMLInputElement>document.getElementById("terrainSkew");
+let terrainSlope = <HTMLInputElement>document.getElementById("terrainSlope");
+let terrainTilt = <HTMLInputElement>document.getElementById("terrainTilt");
 let helperControlsCheckbox = <HTMLInputElement>document.getElementById("helperControlsCheckbox");
 let upButton = <HTMLInputElement>document.getElementById("upButton");
 let downButton = <HTMLInputElement>document.getElementById("downButton");
@@ -51,10 +51,10 @@ else {
     height = 400;
 }
 
-if (terrainAngle && terrainSkew && helperControlsCheckbox && upButton && downButton && leftButton && rightButton && rotateLeftButton && rotateRightButton) {
+if (terrainSlope && terrainTilt && helperControlsCheckbox && upButton && downButton && leftButton && rightButton && rotateLeftButton && rotateRightButton) {
     
-    terrainAngle.addEventListener("change", onTerrainAngleChanged);
-    terrainSkew.addEventListener("change", onTerrainSkewChanged);
+    terrainSlope.addEventListener("change", onTerrainSlopeChanged);
+    terrainTilt.addEventListener("change", onTerrainTiltChanged);
     helperControlsCheckbox.addEventListener("click", onHelperControlsCheckboxClicked);
 
     // mouse down events
@@ -97,10 +97,8 @@ function init() {
     scene.translateY(-1.6);
 
     sceneRotation = scene.rotation;
-    verticalSceneAngle = scene.rotation.x;
-    horizontalSceneAngle = scene.rotation.y;
-
-    console.log("vertical & horizontal angles: " + verticalSceneAngle + " " + horizontalSceneAngle);
+    verticalSceneSlope = scene.rotation.x;
+    horizontalSceneTilt = scene.rotation.y;
 
     // background
     let texture = new THREE.TextureLoader().load("textures/backyard.jpg");
@@ -147,7 +145,7 @@ function onModelLoaded(loadedModel: THREE.Group) {
     modelGroup.add(loadedModel);
 
     // the invisibility box with a hole
-    let cloakGeometry = new THREE.BoxGeometry(6.5, 4.1, 3.1);
+    let cloakGeometry = new THREE.BoxGeometry(6.5, 3.5, 3);
     cloakGeometry.faces.splice(4, 2); // make hole on top by removing top two triangles
 
     let cloakMaterial = new THREE.MeshBasicMaterial({
@@ -156,30 +154,32 @@ function onModelLoaded(loadedModel: THREE.Group) {
 
     let cloakMesh = new THREE.Mesh(cloakGeometry, cloakMaterial);
     cloakMesh.scale.set(1, 1, 1).multiplyScalar(1.01);
-    cloakMesh.position.y = -0.7;
+    cloakMesh.position.y = -0.4;
+    cloakMesh.position.z = 0.05;
+    cloakMesh.position.x = 0.04;
     cloakMesh.renderOrder = 0;
     modelGroup.add(cloakMesh);
 
     // final adjustments
-    modelGroup.position.copy(new Vector3(modelGroup.position.x, modelGroup.position.y - 2.6, modelGroup.position.z)); // acomodo el modelo al nivel del suelo
+    modelGroup.position.copy(new Vector3(modelGroup.position.x, modelGroup.position.y - 2.6, modelGroup.position.z - 10)); // acomodo el modelo al nivel del suelo
     modelGroup.scale.set(2, 2, 2);
     render();
 }
 
-// terrain angle actions
-function onTerrainAngleChanged(event: any) {
+// terrain events
+function onTerrainSlopeChanged(event: any) {
     var value = event.target.value / 50;
-    sceneRotation.x = verticalSceneAngle + value;
+    sceneRotation.x = verticalSceneSlope + value;
     render();
 }
 
-function onTerrainSkewChanged(event: any) {
+function onTerrainTiltChanged(event: any) {
     var value = event.target.value / 50;
-    sceneRotation.z = horizontalSceneAngle + value;
+    sceneRotation.z = horizontalSceneTilt + value;
     render();
 }
 
-// helper controls actions
+// grid helper events
 function onHelperControlsCheckboxClicked(event: any) {
     if (helperControlsCheckbox) {
         let value = helperControlsCheckbox.checked;
@@ -219,7 +219,7 @@ function rotateModelRight() {
     render();
 }
 
-// mouse down events
+// model mouse down events
 function onUpButtonMouseDown(event: any) {
     if (timer) return;
     timer = setInterval(moveModelDown, 10);
@@ -250,7 +250,7 @@ function onRotateRightButtonMouseDown(event: any) {
     timer = setInterval(rotateModelRight, 10);
 }
 
-// mouse up events
+// model mouse up events
 function resetTimer() {
     clearInterval(timer);
     timer = null;
