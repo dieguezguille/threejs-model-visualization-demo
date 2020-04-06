@@ -86,6 +86,7 @@ function loadUi() {
 
         uiElementsArray.forEach(element => {
             if (!element){
+                alert("Loading UI failed. Check that all the elements exist and are named correctly.");
                 return;
             }
         });
