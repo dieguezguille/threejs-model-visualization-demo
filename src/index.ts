@@ -274,19 +274,19 @@ function onHelperControlsCheckboxClicked(event: any) {
 function moveModel(direction: Direction) {
     switch (direction) {
         case Direction.Up: {
-            models[0].position.z -= movAmount;
+            scene.position.z -= movAmount;
             break;
         }
         case Direction.Down: {
-            models[0].position.z += movAmount;
+            scene.position.z += movAmount;
             break;
         }
         case Direction.Left: {
-            models[0].position.x -= movAmount;
+            scene.position.x -= movAmount;
             break;
         }
         case Direction.Right: {
-            models[0].position.x += movAmount;
+            scene.position.x += movAmount;
             break;
         }
     }
