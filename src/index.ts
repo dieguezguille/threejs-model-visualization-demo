@@ -2,11 +2,13 @@ import * as _ from 'lodash';
 import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { Vector3 } from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 // SCENE
 let camera: THREE.PerspectiveCamera,
     scene: THREE.Scene,
-    renderer: THREE.WebGLRenderer;
+    renderer: THREE.WebGLRenderer,
+    orbitControls: OrbitControls
 
 let unityData: any;
 
@@ -86,7 +88,7 @@ function loadUi() {
 
         uiElementsArray.forEach(element => {
             if (!element){
-                alert("Loading UI failed. Check that all the elements exist and are named correctly.");
+                alert("Loading UI failed. Check that all the UI elements exist and are named correctly.");
                 return;
             }
         });
@@ -158,7 +160,7 @@ function init() {
     camera.position.copy(position);
 
     var rotation = new THREE.Quaternion(
-        unityData.CameraRotation.x,
+        -unityData.CameraRotation.x,
         unityData.CameraRotation.y,
         unityData.CameraRotation.z,
         unityData.CameraRotation.w
@@ -169,13 +171,13 @@ function init() {
     // scene
     scene = new THREE.Scene();
     scene.add(gridHelper);
-    scene.translateY(-20);
+    scene.translateY(-50);
 
     sceneRotation = scene.rotation;
     verticalSceneSlope = scene.rotation.x;
     horizontalSceneTilt = scene.rotation.y;
 
-    sceneRotation.x = verticalSceneSlope + 50;
+    // sceneRotation.x = verticalSceneSlope + 50;
 
     // background
     let texture = new THREE.TextureLoader().load("textures/screenshot.jpg");
@@ -232,7 +234,7 @@ function onModelLoaded(loadedModel: THREE.Group) {
 
     // // final adjustments
     models[0].position.copy(new Vector3(0, -2.3, models[0].position.z - 10));
-    models[0].scale.set(0.2, 0.2, 0.2);
+    models[0].scale.set(0.02, 0.02, 0.02);
     render();
 }
 
@@ -293,12 +295,12 @@ function moveModel(direction: Direction) {
 }
 
 function rotateModelLeft() {
-    models[0].rotation.y -= 0.01;
+    scene.rotation.y -= 0.01;
     render();
 }
 
 function rotateModelRight() {
-    models[0].rotation.y += 0.01;
+    scene.rotation.y += 0.01;
     render();
 }
 
