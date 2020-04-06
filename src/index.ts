@@ -1,14 +1,14 @@
 import * as _ from 'lodash';
 import * as THREE from 'three';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
-import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { Vector3 } from 'three';
 
 // SCENE
 let camera: THREE.PerspectiveCamera,
     scene: THREE.Scene,
     renderer: THREE.WebGLRenderer;
-// modelGroup: THREE.Group;
+
+let unityData: any;
 
 enum Direction {
     Up,
@@ -17,13 +17,9 @@ enum Direction {
     Right,
 }
 
-let movAmount = 0.01; // less is more precise but slower
+let movAmount = 0.5; // less is more precise but slower
 
 let models: Array<THREE.Group> = [];
-
-let cameraX: number = 0,
-    cameraY: number = 1.7, // altura de la cámara (altura de una persona aprox)
-    cameraZ: number = 2; // lejania de la cámara
 
 let width: number,
     height: number;
@@ -46,95 +42,132 @@ let upButton = <HTMLInputElement>document.getElementById("upButton");
 let downButton = <HTMLInputElement>document.getElementById("downButton");
 let leftButton = <HTMLInputElement>document.getElementById("leftButton");
 let rightButton = <HTMLInputElement>document.getElementById("rightButton");
+let plusHeightButton = <HTMLInputElement>document.getElementById("plusHeightButton");
+let minusHeightButton = <HTMLInputElement>document.getElementById("minusHeightButton");
 let rotateLeftButton = <HTMLInputElement>document.getElementById("rotateLeftButton");
 let rotateRightButton = <HTMLInputElement>document.getElementById("rotateRightButton");
 
 if (node) {
     container = node;
     console.log("Container div 'three' loaded succesfully");
-    console.log("Container div width is " + container.offsetWidth); // TODO: find containers width and height
-    width = 800;
-    height = 400;
-}
-else {
-    console.log('No container detected. Configuring default values.');
-    width = 800;
-    height = 400;
-}
 
-if (terrainSlope && terrainTilt && helperControlsCheckbox && upButton && downButton && leftButton && rightButton && rotateLeftButton && rotateRightButton) {
+    var image = new Image();
+    image.src = 'textures/screenshot.jpg';
 
-    terrainSlope.addEventListener("change", onTerrainSlopeChanged);
-    terrainTilt.addEventListener("change", onTerrainTiltChanged);
-    helperControlsCheckbox.addEventListener("click", onHelperControlsCheckboxClicked);
+    image.onload = () => {
+        console.log(image.width);
+        console.log(image.height);
 
-    // mouse down events
-    upButton.addEventListener("mousedown", onUpButtonMouseDown);
-    downButton.addEventListener("mousedown", onDownButtonMouseDown);
-    leftButton.addEventListener("mousedown", onLeftButtonMouseDown);
-    rightButton.addEventListener("mousedown", onRightButtonMouseDown);
-    rotateLeftButton.addEventListener("mousedown", onRotateLeftButtonMouseDown);
-    rotateRightButton.addEventListener("mousedown", onRotateRightButtonMouseDown);
+        width = 2340 / 4;
+        height = 1080 / 4;    
 
-    // mouse up events
-    upButton.addEventListener("mouseup", onUpButtonMouseUp);
-    downButton.addEventListener("mouseup", onDownButtonMouseUp);
-    leftButton.addEventListener("mouseup", onLeftButtonMouseUp);
-    rightButton.addEventListener("mouseup", onRightButtonMouseUp);
-    rotateLeftButton.addEventListener("mouseup", onRotateLeftButtonMouseUp);
-    rotateRightButton.addEventListener("mouseup", onRotateRightButtonMouseUp);
+        loadUi();
+        loadJSON(onJsonLoaded);
+    }
 }
 
-init();
-render();
+function loadUi(){
+    if (terrainSlope && terrainTilt && helperControlsCheckbox && upButton && downButton && leftButton && rightButton && rotateLeftButton && rotateRightButton && plusHeightButton && minusHeightButton) {
+
+        terrainSlope.addEventListener("change", onTerrainSlopeChanged);
+        terrainTilt.addEventListener("change", onTerrainTiltChanged);
+        plusHeightButton.addEventListener("click", onPlusHeightButtonClicked);
+        minusHeightButton.addEventListener("click", onMinusHeightButtonCLicked);
+        helperControlsCheckbox.addEventListener("click", onHelperControlsCheckboxClicked);
+    
+        // mouse down events
+        upButton.addEventListener("mousedown", onUpButtonMouseDown);
+        downButton.addEventListener("mousedown", onDownButtonMouseDown);
+        leftButton.addEventListener("mousedown", onLeftButtonMouseDown);
+        rightButton.addEventListener("mousedown", onRightButtonMouseDown);
+        rotateLeftButton.addEventListener("mousedown", onRotateLeftButtonMouseDown);
+        rotateRightButton.addEventListener("mousedown", onRotateRightButtonMouseDown);
+    
+        // mouse up events
+        upButton.addEventListener("mouseup", onUpButtonMouseUp);
+        downButton.addEventListener("mouseup", onDownButtonMouseUp);
+        leftButton.addEventListener("mouseup", onLeftButtonMouseUp);
+        rightButton.addEventListener("mouseup", onRightButtonMouseUp);
+        rotateLeftButton.addEventListener("mouseup", onRotateLeftButtonMouseUp);
+        rotateRightButton.addEventListener("mouseup", onRotateRightButtonMouseUp);
+    }    
+}
+
+function loadJSON(callback: Function) {   
+    var xobj = new XMLHttpRequest();
+        xobj.overrideMimeType("application/json");
+    xobj.open('GET', 'json/SceneData.json', true);
+    xobj.onreadystatechange = function () {
+          if (xobj.readyState == 4 && xobj.status == 200) {
+            callback(xobj.responseText);
+          }
+    };
+    xobj.send(null);  
+ }
+
+ function onJsonLoaded(response: string){
+    unityData = JSON.parse(response);
+    console.log(unityData);
+    init();
+    render();
+ }
 
 function init() {
+
+    // window
+    window.addEventListener('resize', onWindowResize, false);
 
     // renderer
     renderer = new THREE.WebGLRenderer({ alpha: true, powerPreference: 'high-performance', antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(width, height);
     renderer.setClearColor(0xffffff, 0);
-    renderer.gammaFactor = 2.2;
+    renderer.gammaFactor = 2;
     container.appendChild(renderer.domElement);
 
     // camera
-    camera = new THREE.PerspectiveCamera(50, (width / height), 1, 2000);
-    camera.position.set(cameraX, cameraY, cameraZ);
+    camera = new THREE.PerspectiveCamera(unityData.CameraFov, unityData.CameraAspect, 1, 2000);
+
+    camera.position.set(
+        unityData.CameraPosition.x,
+        unityData.CameraPosition.y,
+        unityData.CameraPosition.z
+    );
+
+    var rotation = new THREE.Quaternion(
+        unityData.CameraRotation.x,
+        unityData.CameraRotation.y,
+        unityData.CameraRotation.z,
+        unityData.CameraRotation.w
+    )
+
+    camera.setRotationFromQuaternion(rotation);
 
     // scene
     scene = new THREE.Scene();
     scene.add(gridHelper);
-    scene.translateY(-1.6);
+    // scene.translateY(-2.6);
 
     sceneRotation = scene.rotation;
     verticalSceneSlope = scene.rotation.x;
     horizontalSceneTilt = scene.rotation.y;
 
     // background
-    let texture = new THREE.TextureLoader().load("textures/backyard.jpg");
+    let texture = new THREE.TextureLoader().load("textures/screenshot.jpg");
     scene.background = texture;
 
     // light
-    let ambientLight = new THREE.AmbientLight(0xffffff, 1);
+    let ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
 
     // model load
-    new MTLLoader()
-        .setPath('models/RecessedPool_002/')
-        .load('KayakPool_002.mtl', function (materials) {
-            materials.preload();
-            new OBJLoader()
-                .setMaterials(materials)
-                .setPath('models/RecessedPool_002/')
-                .load('KayakPool_002.obj',
-                    (object) => onModelLoaded(object),
-                    (xhr) => console.log('Model is ' + (xhr.loaded / xhr.total * 100) + '% loaded'),
-                    (error) => console.log(error));
-        });
-
-    window.addEventListener('resize', onWindowResize, false);
-}
+    new FBXLoader()
+        .setPath('models/OnGroundPoolExample/')
+        .load('KayakPool_004.fbx',
+            (object) => onModelLoaded(object),
+            (xhr) => console.log('Model is ' + (xhr.loaded / xhr.total * 100) + '% loaded'),
+            (error) => console.log(error));
+};
 
 function onWindowResize() {
     width = container.offsetWidth; // new Width
@@ -146,12 +179,13 @@ function onWindowResize() {
 }
 
 function onModelLoaded(loadedModel: THREE.Group) {
+    
     // create group
     models[0] = new THREE.Group();
     models[0].name = 'group';
     scene.add(models[0]);
 
-    // the inside of pool
+    // the model of pool
     loadedModel.renderOrder = 3;
     models[0].add(loadedModel);
 
@@ -172,11 +206,8 @@ function onModelLoaded(loadedModel: THREE.Group) {
     // models[0].add(cloakMesh);
 
     // // final adjustments
-    // models[0].position.copy(new Vector3(models[0].position.x, models[0].position.y - 2.6, models[0].position.z - 10)); // acomodo el modelo al nivel del suelo
-    // models[0].scale.set(2, 2, 2);
-    models[0].position.copy(new Vector3(models[0].position.x, models[0].position.y + 4, models[0].position.z - 10));
-    models[0].scale.set(0.05, 0.05, 0.05);
-
+    models[0].position.copy(new Vector3(0, -2.3, models[0].position.z - 10));
+    models[0].scale.set(0.2, 0.2, 0.2);
     render();
 }
 
@@ -193,6 +224,16 @@ function onTerrainTiltChanged(event: any) {
     render();
 }
 
+function onPlusHeightButtonClicked(event: any) {
+    scene.position.y += 0.5;
+    render();
+}
+
+function onMinusHeightButtonCLicked(event: any) {
+    scene.position.y -= 0.5;
+    render();
+}
+
 // grid helper events
 function onHelperControlsCheckboxClicked(event: any) {
     if (helperControlsCheckbox) {
@@ -203,8 +244,8 @@ function onHelperControlsCheckboxClicked(event: any) {
 }
 
 // move actions
-function moveModel(direction: Direction){
-    switch (direction){
+function moveModel(direction: Direction) {
+    switch (direction) {
         case Direction.Up: {
             models[0].position.z -= movAmount;
             break;
