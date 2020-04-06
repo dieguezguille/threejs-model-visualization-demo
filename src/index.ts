@@ -34,18 +34,34 @@ let gridHelper = new THREE.GridHelper(200, 100);
 let timer: any;
 
 // UI
-let node = document.getElementById("three");
-let terrainSlope = <HTMLInputElement>document.getElementById("terrainSlope");
-let terrainTilt = <HTMLInputElement>document.getElementById("terrainTilt");
-let helperControlsCheckbox = <HTMLInputElement>document.getElementById("helperControlsCheckbox");
-let upButton = <HTMLInputElement>document.getElementById("upButton");
-let downButton = <HTMLInputElement>document.getElementById("downButton");
-let leftButton = <HTMLInputElement>document.getElementById("leftButton");
-let rightButton = <HTMLInputElement>document.getElementById("rightButton");
-let plusHeightButton = <HTMLInputElement>document.getElementById("plusHeightButton");
-let minusHeightButton = <HTMLInputElement>document.getElementById("minusHeightButton");
-let rotateLeftButton = <HTMLInputElement>document.getElementById("rotateLeftButton");
-let rotateRightButton = <HTMLInputElement>document.getElementById("rotateRightButton");
+
+let node = <HTMLInputElement>document.getElementById("three"),
+    terrainSlope = <HTMLInputElement>document.getElementById("terrainSlope"),
+    terrainTilt = <HTMLInputElement>document.getElementById("terrainTilt"),
+    helperControlsCheckbox = <HTMLInputElement>document.getElementById("helperControlsCheckbox"),
+    upButton = <HTMLInputElement>document.getElementById("upButton"),
+    downButton = <HTMLInputElement>document.getElementById("downButton"),
+    leftButton = <HTMLInputElement>document.getElementById("leftButton"),
+    rightButton = <HTMLInputElement>document.getElementById("rightButton"),
+    plusHeightButton = <HTMLInputElement>document.getElementById("plusHeightButton"),
+    minusHeightButton = <HTMLInputElement>document.getElementById("minusHeightButton"),
+    rotateLeftButton = <HTMLInputElement>document.getElementById("rotateLeftButton"),
+    rotateRightButton = <HTMLInputElement>document.getElementById("rotateRightButton");
+
+let uiElementsArray: Array<HTMLInputElement> = [
+    node,
+    terrainSlope,
+    terrainTilt,
+    helperControlsCheckbox,
+    upButton,
+    downButton,
+    leftButton,
+    rightButton,
+    plusHeightButton,
+    minusHeightButton,
+    rotateLeftButton,
+    rotateRightButton
+];
 
 if (node) {
     container = node;
@@ -59,22 +75,27 @@ if (node) {
         console.log(image.height);
 
         width = 2340 / 4;
-        height = 1080 / 4;    
+        height = 1080 / 4;
 
         loadUi();
         loadJSON(onJsonLoaded);
     }
 }
 
-function loadUi(){
-    if (terrainSlope && terrainTilt && helperControlsCheckbox && upButton && downButton && leftButton && rightButton && rotateLeftButton && rotateRightButton && plusHeightButton && minusHeightButton) {
+function loadUi() {
+
+        uiElementsArray.forEach(element => {
+            if (!element){
+                return;
+            }
+        });
 
         terrainSlope.addEventListener("change", onTerrainSlopeChanged);
         terrainTilt.addEventListener("change", onTerrainTiltChanged);
         plusHeightButton.addEventListener("click", onPlusHeightButtonClicked);
         minusHeightButton.addEventListener("click", onMinusHeightButtonCLicked);
         helperControlsCheckbox.addEventListener("click", onHelperControlsCheckboxClicked);
-    
+
         // mouse down events
         upButton.addEventListener("mousedown", onUpButtonMouseDown);
         downButton.addEventListener("mousedown", onDownButtonMouseDown);
@@ -82,7 +103,7 @@ function loadUi(){
         rightButton.addEventListener("mousedown", onRightButtonMouseDown);
         rotateLeftButton.addEventListener("mousedown", onRotateLeftButtonMouseDown);
         rotateRightButton.addEventListener("mousedown", onRotateRightButtonMouseDown);
-    
+
         // mouse up events
         upButton.addEventListener("mouseup", onUpButtonMouseUp);
         downButton.addEventListener("mouseup", onDownButtonMouseUp);
@@ -90,27 +111,26 @@ function loadUi(){
         rightButton.addEventListener("mouseup", onRightButtonMouseUp);
         rotateLeftButton.addEventListener("mouseup", onRotateLeftButtonMouseUp);
         rotateRightButton.addEventListener("mouseup", onRotateRightButtonMouseUp);
-    }    
 }
 
-function loadJSON(callback: Function) {   
+function loadJSON(callback: Function) {
     var xobj = new XMLHttpRequest();
-        xobj.overrideMimeType("application/json");
+    xobj.overrideMimeType("application/json");
     xobj.open('GET', 'json/SceneData.json', true);
     xobj.onreadystatechange = function () {
-          if (xobj.readyState == 4 && xobj.status == 200) {
+        if (xobj.readyState == 4 && xobj.status == 200) {
             callback(xobj.responseText);
-          }
+        }
     };
-    xobj.send(null);  
- }
+    xobj.send(null);
+}
 
- function onJsonLoaded(response: string){
+function onJsonLoaded(response: string) {
     unityData = JSON.parse(response);
     console.log(unityData);
     init();
     render();
- }
+}
 
 function init() {
 
@@ -128,11 +148,13 @@ function init() {
     // camera
     camera = new THREE.PerspectiveCamera(unityData.CameraFov, unityData.CameraAspect, 1, 2000);
 
-    camera.position.set(
+    var position = new Vector3(
         unityData.CameraPosition.x,
         unityData.CameraPosition.y,
         unityData.CameraPosition.z
-    );
+    )
+
+    camera.position.copy(position);
 
     var rotation = new THREE.Quaternion(
         unityData.CameraRotation.x,
@@ -146,11 +168,13 @@ function init() {
     // scene
     scene = new THREE.Scene();
     scene.add(gridHelper);
-    // scene.translateY(-2.6);
+    scene.translateY(-20);
 
     sceneRotation = scene.rotation;
     verticalSceneSlope = scene.rotation.x;
     horizontalSceneTilt = scene.rotation.y;
+
+    sceneRotation.x = verticalSceneSlope + 50;
 
     // background
     let texture = new THREE.TextureLoader().load("textures/screenshot.jpg");
@@ -179,7 +203,7 @@ function onWindowResize() {
 }
 
 function onModelLoaded(loadedModel: THREE.Group) {
-    
+
     // create group
     models[0] = new THREE.Group();
     models[0].name = 'group';
