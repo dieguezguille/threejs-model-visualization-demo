@@ -11,7 +11,3 @@ export const JsonLoader = {
         xobj.send(null);
     }
 }
-
-
-
-

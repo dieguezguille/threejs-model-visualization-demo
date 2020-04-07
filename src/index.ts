@@ -1,5 +1,5 @@
 // THREE JS LIBRARY IMPORTS
-import { Vector3, Quaternion, TextureLoader, AmbientLight, PerspectiveCamera, Scene, WebGLRenderer, Group, Euler, GridHelper } from 'three';
+import { Vector3, Quaternion, TextureLoader, AmbientLight, PerspectiveCamera, Scene, WebGLRenderer, Group, Euler, GridHelper, Texture } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 // CUSTOM IMPORTS
 import { UnityData } from './models/unity-data';
@@ -16,7 +16,10 @@ let camera: PerspectiveCamera,
     width: number,
     height: number,
     container: HTMLElement,
-    gridHelper = new GridHelper(200, 100);
+    gridHelper = new GridHelper(200, 100),
+    backgroundImageUrl: string = "textures/screenshot.jpg",
+    backgroundImage: HTMLImageElement,
+    backgroundTexture: Texture;
 
 export let scene: Scene;
 export let models: Array<Group> = [];
@@ -52,17 +55,47 @@ let uiElementsArray: Array<HTMLInputElement> = [
 
 if (node) {
     container = node;
-    var image = new Image();
-    image.src = 'textures/screenshot.jpg';
-    image.onload = () => {
-        updateScreenSize();
-        loadUi();
-        loadSceneData();
+    initialize();
+}
+else {
+    alert("Couldn't initialize the App. Main node is missing.")
+}
+
+function initialize() {
+    loadBackgroundImage();
+    loadUi();
+}
+
+function loadBackgroundImage() {
+    backgroundImage = new Image();
+    backgroundImage.src = backgroundImageUrl;
+    backgroundImage.onload = () => {
+        backgroundTexture = new TextureLoader().load(backgroundImageUrl, onBackgroundImageLoad);
     }
+}
+
+function onBackgroundImageLoad(){
+    updateScreenSize();
+    loadSceneData();
+}
+
+function updateScreenSize() {
+    let aspect = (window.innerHeight / window.innerWidth);
+    width = (backgroundImage.width * 0.2) / aspect;
+    height = (backgroundImage.height * 0.2) / aspect;
 }
 
 function loadSceneData() {
     JsonLoader.load('json/SceneData.json', onJsonLoaded);
+}
+
+function onJsonLoaded(response: string) {
+    unityData = JSON.parse(response);
+    if (unityData) {
+        console.log(unityData);
+        createScene();
+        render();
+    }
 }
 
 function loadUi() {
@@ -75,21 +108,21 @@ function loadUi() {
         }
     });
 
-        // changed
+    // changed
     terrainSlope.addEventListener("change", onTerrainSlopeChanged);
     terrainTilt.addEventListener("change", onTerrainTiltChanged);
-        // clicked
+    // clicked
     plusHeightButton.addEventListener("click", onPlusHeightButtonClicked);
     minusHeightButton.addEventListener("click", onMinusHeightButtonCLicked);
     helperControlsCheckbox.addEventListener("click", onHelperControlsCheckboxClicked);
-        // mousedown
+    // mousedown
     upButton.addEventListener("mousedown", MouseDownEvents.onUpButtonMouseDown);
     downButton.addEventListener("mousedown", MouseDownEvents.onDownButtonMouseDown);
     leftButton.addEventListener("mousedown", MouseDownEvents.onLeftButtonMouseDown);
     rightButton.addEventListener("mousedown", MouseDownEvents.onRightButtonMouseDown);
     rotateLeftButton.addEventListener("mousedown", MouseDownEvents.onRotateLeftButtonMouseDown);
     rotateRightButton.addEventListener("mousedown", MouseDownEvents.onRotateRightButtonMouseDown);
-        // mouseup
+    // mouseup
     upButton.addEventListener("mouseup", MouseUpEvents.onMouseUp);
     downButton.addEventListener("mouseup", MouseUpEvents.onMouseUp);
     leftButton.addEventListener("mouseup", MouseUpEvents.onMouseUp);
@@ -98,14 +131,7 @@ function loadUi() {
     rotateRightButton.addEventListener("mouseup", MouseUpEvents.onMouseUp);
 }
 
-function onJsonLoaded(response: string) {
-    unityData = JSON.parse(response);
-    console.log(unityData);
-    init();
-    render();
-}
-
-function init() {
+function createScene() {
 
     // window
     window.addEventListener('resize', onWindowResize, false);
@@ -126,7 +152,6 @@ function init() {
         unityData.CameraPosition.y,
         unityData.CameraPosition.z
     )
-
     camera.position.copy(position);
 
     var rotation = new Quaternion(
@@ -135,21 +160,18 @@ function init() {
         unityData.CameraRotation.z,
         unityData.CameraRotation.w
     )
-
     camera.setRotationFromQuaternion(rotation);
 
     // scene
     scene = new Scene();
     scene.add(gridHelper);
     scene.translateY(-50);
-
     sceneRotation = scene.rotation;
     verticalSceneSlope = scene.rotation.x;
     horizontalSceneTilt = scene.rotation.y;
 
     // background image
-    let texture = new TextureLoader().load("textures/screenshot.jpg");
-    scene.background = texture;
+    scene.background = backgroundTexture;
 
     // light
     let ambientLight = new AmbientLight(0xffffff, 0.5);
@@ -170,12 +192,6 @@ function onWindowResize() {
     camera.updateProjectionMatrix();
     renderer.setSize(width, height);
     render();
-}
-
-function updateScreenSize() {
-    var aspect = (window.innerHeight / window.innerWidth);
-    width = (image.width * 0.2) / aspect;
-    height = (image.height * 0.2) / aspect;
 }
 
 function onModelLoad(model: Group) {

@@ -1,5 +1,4 @@
 import { Direction } from '../enums/direction';
-import { Group } from 'three';
 import { render, models, scene } from '..';
 
 // VARIABLES
@@ -40,5 +39,3 @@ export const ModelActions = {
         render();
     }
 }
-
-
