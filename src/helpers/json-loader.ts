@@ -1,5 +1,5 @@
-export class JsonLoader {
-    static load: Function = function (path: string, callback: Function) {
+export const JsonLoader = {
+    load: function (path: string, callback: Function) {
         var xobj = new XMLHttpRequest();
         xobj.overrideMimeType("application/json");
         xobj.open('GET', path, true);

@@ -1,33 +1,27 @@
-import * as THREE from 'three';
+// THREE JS LIBRARY IMPORTS
+import { Vector3, Quaternion, TextureLoader, AmbientLight, PerspectiveCamera, Scene, WebGLRenderer, Group, Euler, GridHelper } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
-import { Vector3 } from 'three';
-import { UnityData } from './models/UnityData';
-import { JsonLoader } from './helpers/JsonLoader';
+// CUSTOM IMPORTS
+import { UnityData } from './models/unity-data';
+import { JsonLoader } from './helpers/json-loader';
+import { MouseDownEvents, MouseUpEvents } from './utility/mouse-events';
 
-// SCENE
-let camera: THREE.PerspectiveCamera,
-    scene: THREE.Scene,
-    renderer: THREE.WebGLRenderer;
-let unityData: UnityData;
-let movAmount = 0.5; // less is more precise but slower
-let models: Array<THREE.Group> = [];
-let width: number,
-    height: number;
-let sceneRotation: THREE.Euler;
-let verticalSceneSlope: number,
-    horizontalSceneTilt: number;
-let container: HTMLElement;
-let gridHelper = new THREE.GridHelper(200, 100);
-let timer: any;
+// VARIABLES
+let camera: PerspectiveCamera,
+    renderer: WebGLRenderer,
+    unityData: UnityData,
+    sceneRotation: Euler,
+    verticalSceneSlope: number,
+    horizontalSceneTilt: number,
+    width: number,
+    height: number,
+    container: HTMLElement,
+    gridHelper = new GridHelper(200, 100);
 
-enum Direction {
-    Up,
-    Down,
-    Left,
-    Right,
-}
+export let scene: Scene;
+export let models: Array<Group> = [];
 
-// UI
+// UI ELEMENTS
 let node = <HTMLInputElement>document.getElementById("three"),
     terrainSlope = <HTMLInputElement>document.getElementById("terrainSlope"),
     terrainTilt = <HTMLInputElement>document.getElementById("terrainTilt"),
@@ -63,12 +57,17 @@ if (node) {
     image.onload = () => {
         updateScreenSize();
         loadUi();
-        JsonLoader.load('json/SceneData.json', onJsonLoaded);
+        loadSceneData();
     }
+}
+
+function loadSceneData() {
+    JsonLoader.load('json/SceneData.json', onJsonLoaded);
 }
 
 function loadUi() {
 
+    // check if UI elements exist
     uiElementsArray.forEach(element => {
         if (!element) {
             alert("Loading UI failed. Check that all the UI elements exist and are named correctly.");
@@ -76,30 +75,28 @@ function loadUi() {
         }
     });
 
+        // changed
     terrainSlope.addEventListener("change", onTerrainSlopeChanged);
     terrainTilt.addEventListener("change", onTerrainTiltChanged);
+        // clicked
     plusHeightButton.addEventListener("click", onPlusHeightButtonClicked);
     minusHeightButton.addEventListener("click", onMinusHeightButtonCLicked);
     helperControlsCheckbox.addEventListener("click", onHelperControlsCheckboxClicked);
-
-    // mouse down events
-    upButton.addEventListener("mousedown", onUpButtonMouseDown);
-    downButton.addEventListener("mousedown", onDownButtonMouseDown);
-    leftButton.addEventListener("mousedown", onLeftButtonMouseDown);
-    rightButton.addEventListener("mousedown", onRightButtonMouseDown);
-    rotateLeftButton.addEventListener("mousedown", onRotateLeftButtonMouseDown);
-    rotateRightButton.addEventListener("mousedown", onRotateRightButtonMouseDown);
-
-    // mouse up events
-    upButton.addEventListener("mouseup", onUpButtonMouseUp);
-    downButton.addEventListener("mouseup", onDownButtonMouseUp);
-    leftButton.addEventListener("mouseup", onLeftButtonMouseUp);
-    rightButton.addEventListener("mouseup", onRightButtonMouseUp);
-    rotateLeftButton.addEventListener("mouseup", onRotateLeftButtonMouseUp);
-    rotateRightButton.addEventListener("mouseup", onRotateRightButtonMouseUp);
+        // mousedown
+    upButton.addEventListener("mousedown", MouseDownEvents.onUpButtonMouseDown);
+    downButton.addEventListener("mousedown", MouseDownEvents.onDownButtonMouseDown);
+    leftButton.addEventListener("mousedown", MouseDownEvents.onLeftButtonMouseDown);
+    rightButton.addEventListener("mousedown", MouseDownEvents.onRightButtonMouseDown);
+    rotateLeftButton.addEventListener("mousedown", MouseDownEvents.onRotateLeftButtonMouseDown);
+    rotateRightButton.addEventListener("mousedown", MouseDownEvents.onRotateRightButtonMouseDown);
+        // mouseup
+    upButton.addEventListener("mouseup", MouseUpEvents.onMouseUp);
+    downButton.addEventListener("mouseup", MouseUpEvents.onMouseUp);
+    leftButton.addEventListener("mouseup", MouseUpEvents.onMouseUp);
+    rightButton.addEventListener("mouseup", MouseUpEvents.onMouseUp);
+    rotateLeftButton.addEventListener("mouseup", MouseUpEvents.onMouseUp);
+    rotateRightButton.addEventListener("mouseup", MouseUpEvents.onMouseUp);
 }
-
-
 
 function onJsonLoaded(response: string) {
     unityData = JSON.parse(response);
@@ -114,7 +111,7 @@ function init() {
     window.addEventListener('resize', onWindowResize, false);
 
     // renderer
-    renderer = new THREE.WebGLRenderer({ alpha: true, powerPreference: 'high-performance', antialias: true });
+    renderer = new WebGLRenderer({ alpha: true, powerPreference: 'high-performance', antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(width, height);
     renderer.setClearColor(0xffffff, 0);
@@ -122,7 +119,7 @@ function init() {
     container.appendChild(renderer.domElement);
 
     // camera
-    camera = new THREE.PerspectiveCamera(unityData.CameraFov, unityData.CameraAspect, 1, 2000);
+    camera = new PerspectiveCamera(unityData.CameraFov, unityData.CameraAspect, 1, 2000);
 
     var position = new Vector3(
         unityData.CameraPosition.x,
@@ -132,7 +129,7 @@ function init() {
 
     camera.position.copy(position);
 
-    var rotation = new THREE.Quaternion(
+    var rotation = new Quaternion(
         -unityData.CameraRotation.x,
         unityData.CameraRotation.y,
         unityData.CameraRotation.z,
@@ -142,7 +139,7 @@ function init() {
     camera.setRotationFromQuaternion(rotation);
 
     // scene
-    scene = new THREE.Scene();
+    scene = new Scene();
     scene.add(gridHelper);
     scene.translateY(-50);
 
@@ -151,11 +148,11 @@ function init() {
     horizontalSceneTilt = scene.rotation.y;
 
     // background image
-    let texture = new THREE.TextureLoader().load("textures/screenshot.jpg");
+    let texture = new TextureLoader().load("textures/screenshot.jpg");
     scene.background = texture;
 
     // light
-    let ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    let ambientLight = new AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
 
     // model load
@@ -181,12 +178,12 @@ function updateScreenSize() {
     height = (image.height * 0.2) / aspect;
 }
 
-function onModelLoad(model: THREE.Group) {
+function onModelLoad(model: Group) {
     // create group
-    models[0] = new THREE.Group();
+    models[0] = new Group();
     models[0].name = 'group';
     scene.add(models[0]);
-    
+
     // the model of pool
     model.renderOrder = 3;
     models[0].add(model);
@@ -226,18 +223,18 @@ function onTerrainTiltChanged(event: any) {
     render();
 }
 
-function onPlusHeightButtonClicked(event: any) {
+function onPlusHeightButtonClicked() {
     scene.position.y += 0.5;
     render();
 }
 
-function onMinusHeightButtonCLicked(event: any) {
+function onMinusHeightButtonCLicked() {
     scene.position.y -= 0.5;
     render();
 }
 
 // grid helper events
-function onHelperControlsCheckboxClicked(event: any) {
+function onHelperControlsCheckboxClicked() {
     if (helperControlsCheckbox) {
         let value = helperControlsCheckbox.checked;
         gridHelper.visible = value;
@@ -245,102 +242,6 @@ function onHelperControlsCheckboxClicked(event: any) {
     }
 }
 
-// move actions
-function moveModel(direction: Direction) {
-    switch (direction) {
-        case Direction.Up: {
-            models[0].position.z -= movAmount;
-            break;
-        }
-        case Direction.Down: {
-            models[0].position.z += movAmount;
-            break;
-        }
-        case Direction.Left: {
-            models[0].position.x -= movAmount;
-            break;
-        }
-        case Direction.Right: {
-            models[0].position.x += movAmount;
-            break;
-        }
-    }
-
-    render();
-}
-
-function rotateModelLeft() {
-    scene.rotation.y -= 0.01;
-    render();
-}
-
-function rotateModelRight() {
-    scene.rotation.y += 0.01;
-    render();
-}
-
-// model mouse down events
-function onUpButtonMouseDown(event: any) {
-    if (timer) return;
-    timer = setInterval(() => moveModel(Direction.Up), 10);
-}
-
-function onDownButtonMouseDown(event: any) {
-    if (timer) return;
-    timer = setInterval(() => moveModel(Direction.Down), 10);
-}
-
-function onLeftButtonMouseDown(event: any) {
-    if (timer) return;
-    timer = setInterval(() => moveModel(Direction.Left), 10);
-}
-
-function onRightButtonMouseDown(event: any) {
-    if (timer) return;
-    timer = setInterval(() => moveModel(Direction.Right), 10);
-}
-
-function onRotateLeftButtonMouseDown(event: any) {
-    if (timer) return;
-    timer = setInterval(rotateModelLeft, 10);
-}
-
-function onRotateRightButtonMouseDown(event: any) {
-    if (timer) return;
-    timer = setInterval(rotateModelRight, 10);
-}
-
-// model mouse up events
-function resetTimer() {
-    clearInterval(timer);
-    timer = null;
-    render();
-}
-
-function onUpButtonMouseUp(event: any) {
-    resetTimer();
-}
-
-function onDownButtonMouseUp(event: any) {
-    resetTimer();
-}
-
-function onLeftButtonMouseUp(event: any) {
-    resetTimer();
-}
-
-function onRightButtonMouseUp(event: any) {
-    resetTimer();
-}
-
-function onRotateLeftButtonMouseUp(event: any) {
-    resetTimer();
-}
-
-function onRotateRightButtonMouseUp(event: any) {
-    resetTimer();
-}
-
-function render() {
+export function render() {
     renderer.render(scene, camera);
 }
