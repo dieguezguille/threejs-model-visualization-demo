@@ -14,7 +14,7 @@ export class UnityData {
     LightRotation: THREE.Quaternion;
 
     constructor(cameraPosition: THREE.Vector3, cameraRotation: THREE.Quaternion, cameraFov: number, cameraAspect: number, cameraPixelWidth: number,
-                cameraPixelHeight: number, lightColor: Color, lightIntensity: number, lightPosition: THREE.Vector3, lightRotation: THREE.Quaternion,
+        cameraPixelHeight: number, lightColor: Color, lightIntensity: number, lightPosition: THREE.Vector3, lightRotation: THREE.Quaternion,
     ) {
         this.CameraPosition = cameraPosition;
         this.CameraRotation = cameraRotation;

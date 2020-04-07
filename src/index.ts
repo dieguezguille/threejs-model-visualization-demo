@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { Vector3 } from 'three';
 import { UnityData } from './models/UnityData';
+import { JsonLoader } from './helpers/JsonLoader';
 
 // SCENE
 let camera: THREE.PerspectiveCamera,
@@ -62,53 +63,43 @@ if (node) {
     image.onload = () => {
         updateScreenSize();
         loadUi();
-        loadJSON(onJsonLoaded);
+        JsonLoader.load('json/SceneData.json', onJsonLoaded);
     }
 }
 
 function loadUi() {
 
-        uiElementsArray.forEach(element => {
-            if (!element){
-                alert("Loading UI failed. Check that all the UI elements exist and are named correctly.");
-                return;
-            }
-        });
-
-        terrainSlope.addEventListener("change", onTerrainSlopeChanged);
-        terrainTilt.addEventListener("change", onTerrainTiltChanged);
-        plusHeightButton.addEventListener("click", onPlusHeightButtonClicked);
-        minusHeightButton.addEventListener("click", onMinusHeightButtonCLicked);
-        helperControlsCheckbox.addEventListener("click", onHelperControlsCheckboxClicked);
-
-        // mouse down events
-        upButton.addEventListener("mousedown", onUpButtonMouseDown);
-        downButton.addEventListener("mousedown", onDownButtonMouseDown);
-        leftButton.addEventListener("mousedown", onLeftButtonMouseDown);
-        rightButton.addEventListener("mousedown", onRightButtonMouseDown);
-        rotateLeftButton.addEventListener("mousedown", onRotateLeftButtonMouseDown);
-        rotateRightButton.addEventListener("mousedown", onRotateRightButtonMouseDown);
-
-        // mouse up events
-        upButton.addEventListener("mouseup", onUpButtonMouseUp);
-        downButton.addEventListener("mouseup", onDownButtonMouseUp);
-        leftButton.addEventListener("mouseup", onLeftButtonMouseUp);
-        rightButton.addEventListener("mouseup", onRightButtonMouseUp);
-        rotateLeftButton.addEventListener("mouseup", onRotateLeftButtonMouseUp);
-        rotateRightButton.addEventListener("mouseup", onRotateRightButtonMouseUp);
-}
-
-function loadJSON(callback: Function) {
-    var xobj = new XMLHttpRequest();
-    xobj.overrideMimeType("application/json");
-    xobj.open('GET', 'json/SceneData.json', true);
-    xobj.onreadystatechange = function () {
-        if (xobj.readyState == 4 && xobj.status == 200) {
-            callback(xobj.responseText);
+    uiElementsArray.forEach(element => {
+        if (!element) {
+            alert("Loading UI failed. Check that all the UI elements exist and are named correctly.");
+            return;
         }
-    };
-    xobj.send(null);
+    });
+
+    terrainSlope.addEventListener("change", onTerrainSlopeChanged);
+    terrainTilt.addEventListener("change", onTerrainTiltChanged);
+    plusHeightButton.addEventListener("click", onPlusHeightButtonClicked);
+    minusHeightButton.addEventListener("click", onMinusHeightButtonCLicked);
+    helperControlsCheckbox.addEventListener("click", onHelperControlsCheckboxClicked);
+
+    // mouse down events
+    upButton.addEventListener("mousedown", onUpButtonMouseDown);
+    downButton.addEventListener("mousedown", onDownButtonMouseDown);
+    leftButton.addEventListener("mousedown", onLeftButtonMouseDown);
+    rightButton.addEventListener("mousedown", onRightButtonMouseDown);
+    rotateLeftButton.addEventListener("mousedown", onRotateLeftButtonMouseDown);
+    rotateRightButton.addEventListener("mousedown", onRotateRightButtonMouseDown);
+
+    // mouse up events
+    upButton.addEventListener("mouseup", onUpButtonMouseUp);
+    downButton.addEventListener("mouseup", onDownButtonMouseUp);
+    leftButton.addEventListener("mouseup", onLeftButtonMouseUp);
+    rightButton.addEventListener("mouseup", onRightButtonMouseUp);
+    rotateLeftButton.addEventListener("mouseup", onRotateLeftButtonMouseUp);
+    rotateRightButton.addEventListener("mouseup", onRotateRightButtonMouseUp);
 }
+
+
 
 function onJsonLoaded(response: string) {
     unityData = JSON.parse(response);
@@ -171,7 +162,7 @@ function init() {
     new FBXLoader()
         .setPath('models/OnGroundPoolExample/')
         .load('KayakPool_004.fbx',
-            (object) => onModelLoaded(object),
+            (model) => onModelLoad(model),
             (xhr) => console.log('Model is ' + (xhr.loaded / xhr.total * 100) + '% loaded'),
             (error) => console.log(error));
 };
@@ -184,21 +175,21 @@ function onWindowResize() {
     render();
 }
 
-function updateScreenSize(){
-    width = (image.width * 0.25) / (window.innerHeight / window.innerWidth);
-    height = (image.height * 0.25) / (window.innerHeight / window.innerWidth);
+function updateScreenSize() {
+    var aspect = (window.innerHeight / window.innerWidth);
+    width = (image.width * 0.2) / aspect;
+    height = (image.height * 0.2) / aspect;
 }
 
-function onModelLoaded(loadedModel: THREE.Group) {
-
+function onModelLoad(model: THREE.Group) {
     // create group
     models[0] = new THREE.Group();
     models[0].name = 'group';
     scene.add(models[0]);
-
+    
     // the model of pool
-    loadedModel.renderOrder = 3;
-    models[0].add(loadedModel);
+    model.renderOrder = 3;
+    models[0].add(model);
 
     // the invisibility box with a hole
     // let cloakGeometry = new THREE.BoxGeometry(6.5, 3.5, 3);
