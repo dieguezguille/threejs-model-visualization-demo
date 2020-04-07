@@ -2,15 +2,14 @@ import * as _ from 'lodash';
 import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { Vector3 } from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { UnityData } from './models/UnityData';
 
 // SCENE
 let camera: THREE.PerspectiveCamera,
     scene: THREE.Scene,
-    renderer: THREE.WebGLRenderer,
-    orbitControls: OrbitControls
+    renderer: THREE.WebGLRenderer;
 
-let unityData: any;
+let unityData: UnityData;
 
 enum Direction {
     Up,
@@ -36,7 +35,6 @@ let gridHelper = new THREE.GridHelper(200, 100);
 let timer: any;
 
 // UI
-
 let node = <HTMLInputElement>document.getElementById("three"),
     terrainSlope = <HTMLInputElement>document.getElementById("terrainSlope"),
     terrainTilt = <HTMLInputElement>document.getElementById("terrainTilt"),
@@ -177,9 +175,7 @@ function init() {
     verticalSceneSlope = scene.rotation.x;
     horizontalSceneTilt = scene.rotation.y;
 
-    // sceneRotation.x = verticalSceneSlope + 50;
-
-    // background
+    // background image
     let texture = new THREE.TextureLoader().load("textures/screenshot.jpg");
     scene.background = texture;
 
@@ -274,19 +270,19 @@ function onHelperControlsCheckboxClicked(event: any) {
 function moveModel(direction: Direction) {
     switch (direction) {
         case Direction.Up: {
-            scene.position.z -= movAmount;
+            models[0].position.z -= movAmount;
             break;
         }
         case Direction.Down: {
-            scene.position.z += movAmount;
+            models[0].position.z += movAmount;
             break;
         }
         case Direction.Left: {
-            scene.position.x -= movAmount;
+            models[0].position.x -= movAmount;
             break;
         }
         case Direction.Right: {
-            scene.position.x += movAmount;
+            models[0].position.x += movAmount;
             break;
         }
     }
