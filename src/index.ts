@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { Vector3 } from 'three';
@@ -8,8 +7,17 @@ import { UnityData } from './models/UnityData';
 let camera: THREE.PerspectiveCamera,
     scene: THREE.Scene,
     renderer: THREE.WebGLRenderer;
-
 let unityData: UnityData;
+let movAmount = 0.5; // less is more precise but slower
+let models: Array<THREE.Group> = [];
+let width: number,
+    height: number;
+let sceneRotation: THREE.Euler;
+let verticalSceneSlope: number,
+    horizontalSceneTilt: number;
+let container: HTMLElement;
+let gridHelper = new THREE.GridHelper(200, 100);
+let timer: any;
 
 enum Direction {
     Up,
@@ -17,22 +25,6 @@ enum Direction {
     Left,
     Right,
 }
-
-let movAmount = 0.5; // less is more precise but slower
-
-let models: Array<THREE.Group> = [];
-
-let width: number,
-    height: number;
-
-let sceneRotation: THREE.Euler;
-
-let verticalSceneSlope: number,
-    horizontalSceneTilt: number;
-
-let container: HTMLElement;
-let gridHelper = new THREE.GridHelper(200, 100);
-let timer: any;
 
 // UI
 let node = <HTMLInputElement>document.getElementById("three"),
@@ -65,18 +57,10 @@ let uiElementsArray: Array<HTMLInputElement> = [
 
 if (node) {
     container = node;
-    console.log("Container div 'three' loaded succesfully");
-
     var image = new Image();
     image.src = 'textures/screenshot.jpg';
-
     image.onload = () => {
-        console.log(image.width);
-        console.log(image.height);
-
-        width = 2340 / 4;
-        height = 1080 / 4;
-
+        updateScreenSize();
         loadUi();
         loadJSON(onJsonLoaded);
     }
@@ -193,12 +177,16 @@ function init() {
 };
 
 function onWindowResize() {
-    width = container.offsetWidth; // new Width
-    height = container.offsetHeight; // new Height
+    updateScreenSize();
     camera.aspect = (width / height);
     camera.updateProjectionMatrix();
     renderer.setSize(width, height);
     render();
+}
+
+function updateScreenSize(){
+    width = (image.width * 0.25) / (window.innerHeight / window.innerWidth);
+    height = (image.height * 0.25) / (window.innerHeight / window.innerWidth);
 }
 
 function onModelLoaded(loadedModel: THREE.Group) {
