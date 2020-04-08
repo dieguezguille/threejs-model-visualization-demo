@@ -2,33 +2,15 @@
 import { Vector3, Quaternion, TextureLoader, AmbientLight, PerspectiveCamera, Scene, WebGLRenderer, Group, Euler, GridHelper, Texture } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 // CUSTOM IMPORTS
-import { UnityData } from './models/unity-data';
 import { JsonLoader } from './helpers/json-loader';
 import { MouseDownEvents, MouseUpEvents } from './utility/mouse-events';
-
-// VARIABLES
-let camera: PerspectiveCamera,
-    renderer: WebGLRenderer,
-    unityData: UnityData,
-    sceneRotation: Euler,
-    verticalSceneSlope: number,
-    horizontalSceneTilt: number,
-    width: number,
-    height: number,
-    container: HTMLElement,
-    gridHelper = new GridHelper(200, 100),
-    backgroundImageUrl: string = "textures/screenshot.jpg",
-    backgroundImage: HTMLImageElement,
-    backgroundTexture: Texture;
-
-export let scene: Scene;
-export let models: Array<Group> = [];
+import { SceneActions } from './utility/scene-actions';
+import { Globals } from './utility/variables';
 
 // UI ELEMENTS
 let node = <HTMLInputElement>document.getElementById("three"),
     terrainSlope = <HTMLInputElement>document.getElementById("terrainSlope"),
     terrainTilt = <HTMLInputElement>document.getElementById("terrainTilt"),
-    helperControlsCheckbox = <HTMLInputElement>document.getElementById("helperControlsCheckbox"),
     upButton = <HTMLInputElement>document.getElementById("upButton"),
     downButton = <HTMLInputElement>document.getElementById("downButton"),
     leftButton = <HTMLInputElement>document.getElementById("leftButton"),
@@ -37,6 +19,8 @@ let node = <HTMLInputElement>document.getElementById("three"),
     minusHeightButton = <HTMLInputElement>document.getElementById("minusHeightButton"),
     rotateLeftButton = <HTMLInputElement>document.getElementById("rotateLeftButton"),
     rotateRightButton = <HTMLInputElement>document.getElementById("rotateRightButton");
+
+export let helperControlsCheckbox = <HTMLInputElement>document.getElementById("helperControlsCheckbox");
 
 let uiElementsArray: Array<HTMLInputElement> = [
     node,
@@ -54,7 +38,7 @@ let uiElementsArray: Array<HTMLInputElement> = [
 ];
 
 if (node) {
-    container = node;
+    Globals.container = node;
     initialize();
 }
 else {
@@ -67,10 +51,10 @@ function initialize() {
 }
 
 function loadBackgroundImage() {
-    backgroundImage = new Image();
-    backgroundImage.src = backgroundImageUrl;
-    backgroundImage.onload = () => {
-        backgroundTexture = new TextureLoader().load(backgroundImageUrl, onBackgroundImageLoad);
+    Globals.backgroundImage = new Image();
+    Globals.backgroundImage.src = Globals.backgroundImageUrl;
+    Globals.backgroundImage.onload = () => {
+        Globals.backgroundTexture = new TextureLoader().load(Globals.backgroundImageUrl, onBackgroundImageLoad);
     }
 }
 
@@ -81,18 +65,18 @@ function onBackgroundImageLoad(){
 
 function updateScreenSize() {
     let aspect = (window.innerHeight / window.innerWidth);
-    width = (backgroundImage.width * 0.2) / aspect;
-    height = (backgroundImage.height * 0.2) / aspect;
+    Globals.width = (Globals.backgroundImage.width * 0.2) / aspect;
+    Globals.height = (Globals.backgroundImage.height * 0.2) / aspect;
 }
 
 function loadSceneData() {
-    JsonLoader.load('json/SceneData.json', onJsonLoaded);
+    JsonLoader.load('json/002/SceneData.json', onJsonLoaded);
 }
 
 function onJsonLoaded(response: string) {
-    unityData = JSON.parse(response);
-    if (unityData) {
-        console.log(unityData);
+    Globals.unityData = JSON.parse(response);
+    if (Globals.unityData) {
+        console.log(Globals.unityData);
         createScene();
         render();
     }
@@ -109,12 +93,12 @@ function loadUi() {
     });
 
     // changed
-    terrainSlope.addEventListener("change", onTerrainSlopeChanged);
-    terrainTilt.addEventListener("change", onTerrainTiltChanged);
+    terrainSlope.addEventListener("change", SceneActions.onTerrainSlopeChanged);
+    terrainTilt.addEventListener("change", SceneActions.onTerrainTiltChanged);
     // clicked
-    plusHeightButton.addEventListener("click", onPlusHeightButtonClicked);
-    minusHeightButton.addEventListener("click", onMinusHeightButtonCLicked);
-    helperControlsCheckbox.addEventListener("click", onHelperControlsCheckboxClicked);
+    plusHeightButton.addEventListener("click", SceneActions.onPlusHeightButtonClicked);
+    minusHeightButton.addEventListener("click", SceneActions.onMinusHeightButtonCLicked);
+    helperControlsCheckbox.addEventListener("click", SceneActions.onHelperControlsCheckboxClicked);
     // mousedown
     upButton.addEventListener("mousedown", MouseDownEvents.onUpButtonMouseDown);
     downButton.addEventListener("mousedown", MouseDownEvents.onDownButtonMouseDown);
@@ -137,45 +121,50 @@ function createScene() {
     window.addEventListener('resize', onWindowResize, false);
 
     // renderer
-    renderer = new WebGLRenderer({ alpha: true, powerPreference: 'high-performance', antialias: true });
+    Globals.renderer = new WebGLRenderer({ alpha: true, powerPreference: 'high-performance', antialias: true });
+    let renderer = Globals.renderer;
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(width, height);
+    renderer.setSize(Globals.width, Globals.height);
     renderer.setClearColor(0xffffff, 0);
     renderer.gammaFactor = 2;
-    container.appendChild(renderer.domElement);
+
+    Globals.container.appendChild(renderer.domElement);
 
     // camera
-    camera = new PerspectiveCamera(unityData.CameraFov, unityData.CameraAspect, 1, 2000);
+    Globals.camera = new PerspectiveCamera(Globals.unityData.CameraFov, Globals.unityData.CameraAspect, 1, 2000);
 
     var position = new Vector3(
-        unityData.CameraPosition.x,
-        unityData.CameraPosition.y,
-        unityData.CameraPosition.z
+        Globals.unityData.CameraPosition.x,
+        Globals.unityData.CameraPosition.y,
+        Globals.unityData.CameraPosition.z
     )
-    camera.position.copy(position);
+
+    Globals.camera.position.copy(position);
 
     var rotation = new Quaternion(
-        -unityData.CameraRotation.x,
-        unityData.CameraRotation.y,
-        unityData.CameraRotation.z,
-        unityData.CameraRotation.w
+        -Globals.unityData.CameraRotation.x,
+        Globals.unityData.CameraRotation.y,
+        Globals.unityData.CameraRotation.z,
+        Globals.unityData.CameraRotation.w
     )
-    camera.setRotationFromQuaternion(rotation);
+
+    Globals.camera.setRotationFromQuaternion(rotation);
 
     // scene
-    scene = new Scene();
-    scene.add(gridHelper);
-    scene.translateY(-50);
-    sceneRotation = scene.rotation;
-    verticalSceneSlope = scene.rotation.x;
-    horizontalSceneTilt = scene.rotation.y;
+    Globals.scene = new Scene();
+    Globals.gridHelper = new GridHelper(200, 100);
+    Globals.scene.add(Globals.gridHelper);
+    Globals.scene.translateY(-50);
+    Globals.sceneRotation = Globals.scene.rotation;
+    Globals.verticalSceneSlope = Globals.scene.rotation.x;
+    Globals.horizontalSceneTilt = Globals.scene.rotation.y;
 
     // background image
-    scene.background = backgroundTexture;
+    Globals.scene.background = Globals.backgroundTexture;
 
     // light
     let ambientLight = new AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
+    Globals.scene.add(ambientLight);
 
     // model load
     new FBXLoader()
@@ -188,21 +177,21 @@ function createScene() {
 
 function onWindowResize() {
     updateScreenSize();
-    camera.aspect = (width / height);
-    camera.updateProjectionMatrix();
-    renderer.setSize(width, height);
+    Globals.camera.aspect = (Globals.width / Globals.height);
+    Globals.camera.updateProjectionMatrix();
+    Globals.renderer.setSize(Globals.width, Globals.height);
     render();
 }
 
 function onModelLoad(model: Group) {
     // create group
-    models[0] = new Group();
-    models[0].name = 'group';
-    scene.add(models[0]);
+    Globals.models[0] = new Group();
+    Globals.models[0].name = 'group';
+    Globals.scene.add(Globals.models[0]);
 
     // the model of pool
     model.renderOrder = 3;
-    models[0].add(model);
+    Globals.models[0].add(model);
 
     // the invisibility box with a hole
     // let cloakGeometry = new THREE.BoxGeometry(6.5, 3.5, 3);
@@ -221,43 +210,11 @@ function onModelLoad(model: Group) {
     // models[0].add(cloakMesh);
 
     // // final adjustments
-    models[0].position.copy(new Vector3(0, -2.3, models[0].position.z - 10));
-    models[0].scale.set(0.02, 0.02, 0.02);
+    Globals.models[0].position.copy(new Vector3(0, -2.3, Globals.models[0].position.z - 10));
+    Globals.models[0].scale.set(0.2, 0.2, 0.2);
     render();
-}
-
-// terrain events
-function onTerrainSlopeChanged(event: any) {
-    var value = event.target.value / 50;
-    sceneRotation.x = verticalSceneSlope + value;
-    render();
-}
-
-function onTerrainTiltChanged(event: any) {
-    var value = event.target.value / 50;
-    sceneRotation.z = horizontalSceneTilt + value;
-    render();
-}
-
-function onPlusHeightButtonClicked() {
-    scene.position.y += 0.5;
-    render();
-}
-
-function onMinusHeightButtonCLicked() {
-    scene.position.y -= 0.5;
-    render();
-}
-
-// grid helper events
-function onHelperControlsCheckboxClicked() {
-    if (helperControlsCheckbox) {
-        let value = helperControlsCheckbox.checked;
-        gridHelper.visible = value;
-        render();
-    }
 }
 
 export function render() {
-    renderer.render(scene, camera);
+    Globals.renderer.render(Globals.scene, Globals.camera);
 }

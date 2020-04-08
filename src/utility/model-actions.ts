@@ -1,5 +1,6 @@
 import { Direction } from '../enums/direction';
-import { render, models, scene } from '..';
+import { render } from '..';
+import { Globals } from './variables';
 
 // VARIABLES
 const movAmount = 0.4;
@@ -9,19 +10,19 @@ export const ModelActions = {
     moveModel: (direction: Direction) => {
         switch (direction) {
             case Direction.Up: {
-                models[0].position.z -= movAmount;
+                Globals.models[0].position.z -= movAmount;
                 break;
             }
             case Direction.Down: {
-                models[0].position.z += movAmount;
+                Globals.models[0].position.z += movAmount;
                 break;
             }
             case Direction.Left: {
-                models[0].position.x -= movAmount;
+                Globals.models[0].position.x -= movAmount;
                 break;
             }
             case Direction.Right: {
-                models[0].position.x += movAmount;
+                Globals.models[0].position.x += movAmount;
                 break;
             }
         }
@@ -30,12 +31,12 @@ export const ModelActions = {
     },
 
     rotateModelLeft: () => {
-        scene.rotation.y -= 0.01;
+        Globals.scene.rotation.y -= 0.01;
         render();
     },
 
     rotateModelRight: () => {
-        scene.rotation.y += 0.01;
+        Globals.scene.rotation.y += 0.01;
         render();
     }
 }

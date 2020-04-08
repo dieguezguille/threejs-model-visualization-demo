@@ -7,27 +7,27 @@ let timer: any;
 
 // model mouse down events
 export const MouseDownEvents = {
-    onUpButtonMouseDown: (event: any) => {
+    onUpButtonMouseDown: () => {
         if (timer) return;
         timer = setInterval(() => ModelActions.moveModel(Direction.Up), 10);
     },
-    onDownButtonMouseDown: (event: any) => {
+    onDownButtonMouseDown: () => {
         if (timer) return;
         timer = setInterval(() => ModelActions.moveModel(Direction.Down), 10);
     },
-    onLeftButtonMouseDown: (event: any) => {
+    onLeftButtonMouseDown: () => {
         if (timer) return;
         timer = setInterval(() => ModelActions.moveModel(Direction.Left), 10);
     },
-    onRightButtonMouseDown: (event: any) => {
+    onRightButtonMouseDown: () => {
         if (timer) return;
         timer = setInterval(() => ModelActions.moveModel(Direction.Right), 10);
     },
-    onRotateLeftButtonMouseDown: (event: any) => {
+    onRotateLeftButtonMouseDown: () => {
         if (timer) return;
         timer = setInterval(ModelActions.rotateModelLeft, 10);
     },
-    onRotateRightButtonMouseDown: (event: any) => {
+    onRotateRightButtonMouseDown: () => {
         if (timer) return;
         timer = setInterval(ModelActions.rotateModelRight, 10);
     }
