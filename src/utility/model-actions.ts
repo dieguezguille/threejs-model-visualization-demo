@@ -3,7 +3,7 @@ import { render } from '..';
 import { Globals } from './variables';
 
 // VARIABLES
-const movAmount = 0.4;
+const movAmount = 0.1;
 
 // model actions
 export const ModelActions = {
@@ -27,6 +27,7 @@ export const ModelActions = {
             }
         }
 
+        // console.log(Globals.models[0].position);
         render();
     },
 

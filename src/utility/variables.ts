@@ -10,6 +10,7 @@ export class Globals{
     static width: number;
     static height: number;
     static backgroundImageUrl: string = "textures/002/screenshot.jpg";
+    static jsonDataUrl: string = "json/002/SceneData.json";
     static backgroundImage: HTMLImageElement;
     static backgroundTexture: Texture;
     static scene: Scene;

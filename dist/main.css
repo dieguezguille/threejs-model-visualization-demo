@@ -21,10 +21,10 @@ body {
 
 #controls{
 	padding: 5px;
-	display: flex;
+	display: block;
 	justify-content: center;
 	align-items: center;
-	vertical-align: center;
+	/* vertical-align: center; */
 }
 
 #controls div{
