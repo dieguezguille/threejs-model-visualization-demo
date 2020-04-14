@@ -1,29 +1,16 @@
-import { Color } from "three"
 
 export class UnityData {
+
     //Fields 
-    CameraPosition: THREE.Vector3;
-    CameraRotation: THREE.Quaternion;
     CameraFov: number;
     CameraAspect: number;
-    CameraPixelWidth: number;
-    CameraPixelHeight: number;
-    // LightColor: Color;
-    // LightIntensity: number;
-    // LightPosition: THREE.Vector3;
-    // LightRotation: THREE.Quaternion;
+    PerimeterDistance: number;
+    SurfaceArea: number;
 
-    constructor(cameraPosition: THREE.Vector3, cameraRotation: THREE.Quaternion, cameraFov: number, cameraAspect: number, cameraPixelWidth: number,
-        cameraPixelHeight: number,) {
-        this.CameraPosition = cameraPosition;
-        this.CameraRotation = cameraRotation;
+    constructor(cameraFov: number, cameraAspect: number, perimeterDistance: number, surfaceArea: number) {
         this.CameraFov = cameraFov;
         this.CameraAspect = cameraAspect;
-        this.CameraPixelWidth = cameraPixelWidth;
-        this.CameraPixelHeight = cameraPixelHeight;
-        // this.LightColor = lightColor;
-        // this.LightIntensity = lightIntensity;
-        // this.LightPosition = lightPosition;
-        // this.LightRotation = lightRotation;
+        this.PerimeterDistance = perimeterDistance;
+        this.SurfaceArea = surfaceArea;
     }
 }

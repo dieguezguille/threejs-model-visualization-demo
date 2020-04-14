@@ -1,11 +1,11 @@
 // THREE JS LIBRARY IMPORTS
-import { Vector3, Quaternion, TextureLoader, AmbientLight, PerspectiveCamera, Scene, WebGLRenderer, Group, Euler, GridHelper, Texture, BoxGeometry, MeshBasicMaterial, Mesh, Camera } from 'three';
+import { Vector3, Quaternion, TextureLoader, AmbientLight, PerspectiveCamera, Scene, WebGLRenderer, Group, Euler, GridHelper, Texture, BoxGeometry, MeshBasicMaterial, Mesh, Camera, DirectionalLight, HemisphereLight, Color } from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 // CUSTOM IMPORTS
 import { JsonLoader } from './helpers/json-loader';
 import { MouseDownEvents, MouseUpEvents } from './utility/mouse-events';
 import { SceneActions } from './utility/scene-actions';
-import { Globals } from './utility/variables';
+import { Globals, CustomLight } from './utility/variables';
 import * as dat from 'dat.gui';
 
 const gui = new dat.GUI({
@@ -13,17 +13,13 @@ const gui = new dat.GUI({
     autoPlace: false
 });
 
-
 // UI ELEMENTS
 let node = <HTMLInputElement>document.getElementById("three"),
     terrainSlope = <HTMLInputElement>document.getElementById("terrainSlope"),
-    terrainTilt = <HTMLInputElement>document.getElementById("terrainTilt"),
     upButton = <HTMLInputElement>document.getElementById("upButton"),
     downButton = <HTMLInputElement>document.getElementById("downButton"),
     leftButton = <HTMLInputElement>document.getElementById("leftButton"),
     rightButton = <HTMLInputElement>document.getElementById("rightButton"),
-    plusHeightButton = <HTMLInputElement>document.getElementById("plusHeightButton"),
-    minusHeightButton = <HTMLInputElement>document.getElementById("minusHeightButton"),
     rotateLeftButton = <HTMLInputElement>document.getElementById("rotateLeftButton"),
     rotateRightButton = <HTMLInputElement>document.getElementById("rotateRightButton");
 
@@ -32,14 +28,11 @@ export let helperControlsCheckbox = <HTMLInputElement>document.getElementById("h
 let uiElementsArray: Array<HTMLInputElement> = [
     node,
     terrainSlope,
-    // terrainTilt,
     helperControlsCheckbox,
     upButton,
     downButton,
     leftButton,
     rightButton,
-    // plusHeightButton,
-    // minusHeightButton,
     rotateLeftButton,
     rotateRightButton
 ];
@@ -54,7 +47,6 @@ else {
 
 function load() {
     loadBackgroundImage();
-    //loadUi();
 }
 
 function loadBackgroundImage() {
@@ -142,6 +134,22 @@ function loadUi() {
         render();
         console.log(Globals.camera.fov);
     });
+    gui.addColor(CustomLight, 'color').name("Light Color").onChange((value) => {
+        CustomLight.color = value;
+        Globals.scene.remove(Globals.ambientLight);
+        Globals.ambientLight = new AmbientLight(CustomLight.color, CustomLight.intensity);
+        Globals.scene.add(Globals.ambientLight);
+        render();
+        console.log(Globals.ambientLight.color);
+    });
+    gui.add(CustomLight, 'intensity', 0, 1, 0.05).name("Light Intensity").onChange((value) => {
+        CustomLight.intensity = value;
+        Globals.scene.remove(Globals.ambientLight);
+        Globals.ambientLight = new AmbientLight(CustomLight.color, CustomLight.intensity);
+        Globals.scene.add(Globals.ambientLight);
+        render();
+        console.log(Globals.ambientLight.intensity);
+    })
 
     node.appendChild(gui.domElement);
 }
@@ -186,8 +194,9 @@ function init() {
     // background image
     Globals.scene.background = Globals.backgroundTexture;
     // light
-    let ambientLight = new AmbientLight(0xffffff, 0.5);
-    Globals.scene.add(ambientLight);
+    Globals.ambientLight = new AmbientLight(0xFFFFFF, 1);
+    Globals.scene.add(Globals.ambientLight);
+
     // model load
     new FBXLoader()
         .setPath('models/OnGroundPoolExample/')

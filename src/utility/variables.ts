@@ -1,4 +1,4 @@
-import { PerspectiveCamera, WebGLRenderer, Texture, Scene, Group, Euler, GridHelper } from "three";
+import { PerspectiveCamera, WebGLRenderer, Texture, Scene, Group, Euler, GridHelper, AmbientLight, DirectionalLight, HemisphereLight } from "three";
 import { UnityData } from "../models/unity-data";
 
 // GLOBAL
@@ -19,6 +19,12 @@ export class Globals{
     static verticalSceneSlope: number;
     static horizontalSceneTilt: number;
     static gridHelper: GridHelper;
+    static ambientLight: AmbientLight;
+}
+
+export class CustomLight{
+    static color: number = 0xFFFFFF;
+    static intensity: number = 1;
 }
 
 // UI
