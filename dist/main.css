@@ -17,14 +17,21 @@ body {
 #three{
 	width: auto;
 	height: auto;
+	position: relative;
+}
+
+.dg{
+	position: absolute;
+	top: 0;
+	right: 0;
 }
 
 #controls{
 	padding: 5px;
-	display: block;
+	display: flex;
 	justify-content: center;
 	align-items: center;
-	/* vertical-align: center; */
+	vertical-align: center;
 }
 
 #controls div{

@@ -6,6 +6,13 @@ import { JsonLoader } from './helpers/json-loader';
 import { MouseDownEvents, MouseUpEvents } from './utility/mouse-events';
 import { SceneActions } from './utility/scene-actions';
 import { Globals } from './utility/variables';
+import * as dat from 'dat.gui';
+
+const gui = new dat.GUI({
+    name: 'MyGUI',
+    autoPlace: false
+});
+
 
 // UI ELEMENTS
 let node = <HTMLInputElement>document.getElementById("three"),
@@ -25,14 +32,14 @@ export let helperControlsCheckbox = <HTMLInputElement>document.getElementById("h
 let uiElementsArray: Array<HTMLInputElement> = [
     node,
     terrainSlope,
-    terrainTilt,
+    // terrainTilt,
     helperControlsCheckbox,
     upButton,
     downButton,
     leftButton,
     rightButton,
-    plusHeightButton,
-    minusHeightButton,
+    // plusHeightButton,
+    // minusHeightButton,
     rotateLeftButton,
     rotateRightButton
 ];
@@ -47,7 +54,7 @@ else {
 
 function load() {
     loadBackgroundImage();
-    loadUi();
+    //loadUi();
 }
 
 function loadBackgroundImage() {
@@ -65,8 +72,8 @@ function onBackgroundImageLoad() {
 
 function updateScreenSize() {
     let aspect = (window.innerHeight / window.innerWidth);
-    Globals.width = (Globals.backgroundImage.width * 0.2) / aspect;
-    Globals.height = (Globals.backgroundImage.height * 0.2) / aspect;
+    Globals.width = (Globals.backgroundImage.width * 0.3) / aspect;
+    Globals.height = (Globals.backgroundImage.height * 0.3) / aspect;
 }
 
 function loadSceneData() {
@@ -78,15 +85,16 @@ function onJsonLoaded(response: string) {
     if (Globals.unityData) {
         console.log(Globals.unityData);
         init();
+        loadUi();
         render();
     }
     else {
         alert("Unable to load JSON data. unityData is undefined.");
+        return;
     }
 }
 
 function loadUi() {
-
     // check if UI elements exist
     uiElementsArray.forEach(element => {
         if (!element) {
@@ -97,10 +105,6 @@ function loadUi() {
 
     // changed
     terrainSlope.addEventListener("change", SceneActions.onTerrainSlopeChanged);
-    terrainTilt.addEventListener("change", SceneActions.onTerrainTiltChanged);
-    // clicked
-    plusHeightButton.addEventListener("click", SceneActions.onPlusHeightButtonClicked);
-    minusHeightButton.addEventListener("click", SceneActions.onMinusHeightButtonCLicked);
     helperControlsCheckbox.addEventListener("click", SceneActions.onHelperControlsCheckboxClicked);
     // mousedown
     upButton.addEventListener("mousedown", MouseDownEvents.onUpButtonMouseDown);
@@ -116,6 +120,30 @@ function loadUi() {
     rightButton.addEventListener("mouseup", MouseUpEvents.onMouseUp);
     rotateLeftButton.addEventListener("mouseup", MouseUpEvents.onMouseUp);
     rotateRightButton.addEventListener("mouseup", MouseUpEvents.onMouseUp);
+
+    gui.add(Globals.camera.position, 'x', -50, 50, 0.01).name("Camera X").onChange((value) => {
+        Globals.camera.position.x = value;
+        render();
+        console.log(Globals.camera.position.x);
+    });
+    gui.add(Globals.camera.position, 'y', -10, 20, 0.01).name("Camera Y").onChange((value) => {
+        Globals.camera.position.y = value;
+        render();
+        console.log(Globals.camera.position.y);
+    });
+    gui.add(Globals.camera.position, 'z', -50, 50, 0.01).name("Camera Z").onChange((value) => {
+        Globals.camera.position.z = value;
+        render();
+        console.log(Globals.camera.position.z);
+    });
+    gui.add(Globals.camera, 'fov', 10, 120, 0.01).name("Camera FOV").onChange((value) => {
+        Globals.camera.fov = value;
+        Globals.camera.updateProjectionMatrix();
+        render();
+        console.log(Globals.camera.fov);
+    });
+
+    node.appendChild(gui.domElement);
 }
 
 function init() {
@@ -130,47 +158,30 @@ function init() {
     renderer.gammaFactor = 2;
     Globals.container.appendChild(renderer.domElement);
     // camera
-    Globals.camera = new PerspectiveCamera(50, Globals.unityData.CameraAspect, 0.1, 1000);
+    Globals.camera = new PerspectiveCamera(Globals.unityData.CameraFov, Globals.unityData.CameraAspect, 0.1, 2000);
 
-    console.log(Globals.camera.position);
-
-    // var position = new Vector3(
-    //     Globals.unityData.CameraPosition.x,
-    //     Globals.unityData.CameraPosition.y,
-    //     Globals.unityData.CameraPosition.z
-    // )
-
-    // valores de fspy
-    var position = new Vector3(
-        -1.3013652554017365,
-        1.2191799727337025,
-        -4.261721271971087
-    )
+    var position = new Vector3(0, 4, -20);
 
     Globals.camera.position.copy(position);
+    console.log(Globals.camera.position);
 
-    //valore de fspy
     var rotation = new Quaternion(
-        -0.005837166756737747,
-        -0.9881411214417758,
-        -0.12056673218081797,
-        0.09490371273707121
+        -0.0012938638834527766,
+        -0.992649985728078,
+        -0.12090229066328192,
+        0.005193059147722494
     )
 
     Globals.camera.setRotationFromQuaternion(rotation);
     console.log(Globals.camera.rotation);
 
-    // Globals.camera.rotation.copy(new Euler(0,0,0));
-    // Globals.camera.rotation.copy(new Euler(-0.008397811837527991, -0.9962047164675978, -0.08663509475988529));
-
     // scene
     Globals.scene = new Scene();
-    Globals.gridHelper = new GridHelper(20, 10, 129090, 999999);
+    Globals.gridHelper = new GridHelper(200, 100, 129090, 999999);
     Globals.scene.add(Globals.gridHelper);
     // Globals.scene.translateY(-50);
     Globals.sceneRotation = Globals.scene.rotation;
     Globals.verticalSceneSlope = Globals.scene.rotation.x;
-    console.log("vertical scene slope (rotation in x) = " + Globals.verticalSceneSlope);
     Globals.horizontalSceneTilt = Globals.scene.rotation.y;
     // background image
     Globals.scene.background = Globals.backgroundTexture;
@@ -195,22 +206,17 @@ function onWindowResize() {
 }
 
 function onModelLoad(model: Group) {
+
     // create group
     Globals.models[0] = new Group();
     Globals.models[0].name = 'group';
     Globals.scene.add(Globals.models[0]);
+    Globals.models[0].scale.set(0.02, 0.02, 0.02);
+    Globals.models[0].translateY(-0.1);
 
     // add the model of the pool
-    // model.renderOrder = 3;
-
-    var geometry = new BoxGeometry(1, 1, 1);
-    var material = new MeshBasicMaterial({ color: 0x00ff00 });
-    var cube = new Mesh(geometry, material);
-    cube.translateY(0.5);
-    // Globals.scene.add(cube);
-
-    Globals.models[0].add(cube);
-    // Globals.camera.lookAt(cube.position);
+    model.renderOrder = 3;
+    Globals.models[0].add(model);
 
     // the invisibility box with a hole
     // let cloakGeometry = new THREE.BoxGeometry(6.5, 3.5, 3);
@@ -227,14 +233,6 @@ function onModelLoad(model: Group) {
     // cloakMesh.position.x = 0.04;
     // cloakMesh.renderOrder = 0;
     // models[0].add(cloakMesh);
-
-    // // final adjustments
-    // Globals.models[0].position.copy(new Vector3(0, 0, -150));
-    // Globals.models[0].translateZ(-1500);
-    Globals.models[0].scale.set(1, 1, 1);
-    // Globals.scene.scale.set(0.1, 0.1, 0.1);
-
-    // Globals.camera.lookAt(cube.position);
     render();
 }
 

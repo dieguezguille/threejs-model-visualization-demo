@@ -32,12 +32,12 @@ export const ModelActions = {
     },
 
     rotateModelLeft: () => {
-        Globals.scene.rotation.y -= 0.01;
+        Globals.models[0].rotation.y -= 0.01;
         render();
     },
 
     rotateModelRight: () => {
-        Globals.scene.rotation.y += 0.01;
+        Globals.models[0].rotation.y += 0.01;
         render();
     }
 }

@@ -9,8 +9,8 @@ export class Globals{
     static unityData: UnityData;
     static width: number;
     static height: number;
-    static backgroundImageUrl: string = "textures/002/screenshot.jpg";
-    static jsonDataUrl: string = "json/002/SceneData.json";
+    static backgroundImageUrl: string = "textures/003/Screenshot_05-11-13_13-04-20.jpg";
+    static jsonDataUrl: string = "json/003/data_04-13-2020-17-11-13.json";
     static backgroundImage: HTMLImageElement;
     static backgroundTexture: Texture;
     static scene: Scene;

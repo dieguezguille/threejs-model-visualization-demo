@@ -8,23 +8,22 @@ export class UnityData {
     CameraAspect: number;
     CameraPixelWidth: number;
     CameraPixelHeight: number;
-    LightColor: Color;
-    LightIntensity: number;
-    LightPosition: THREE.Vector3;
-    LightRotation: THREE.Quaternion;
+    // LightColor: Color;
+    // LightIntensity: number;
+    // LightPosition: THREE.Vector3;
+    // LightRotation: THREE.Quaternion;
 
     constructor(cameraPosition: THREE.Vector3, cameraRotation: THREE.Quaternion, cameraFov: number, cameraAspect: number, cameraPixelWidth: number,
-        cameraPixelHeight: number, lightColor: Color, lightIntensity: number, lightPosition: THREE.Vector3, lightRotation: THREE.Quaternion,
-    ) {
+        cameraPixelHeight: number,) {
         this.CameraPosition = cameraPosition;
         this.CameraRotation = cameraRotation;
         this.CameraFov = cameraFov;
         this.CameraAspect = cameraAspect;
         this.CameraPixelWidth = cameraPixelWidth;
         this.CameraPixelHeight = cameraPixelHeight;
-        this.LightColor = lightColor;
-        this.LightIntensity = lightIntensity;
-        this.LightPosition = lightPosition;
-        this.LightRotation = lightRotation;
+        // this.LightColor = lightColor;
+        // this.LightIntensity = lightIntensity;
+        // this.LightPosition = lightPosition;
+        // this.LightRotation = lightRotation;
     }
 }
